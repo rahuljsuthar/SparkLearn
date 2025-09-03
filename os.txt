@@ -1,0 +1,12 @@
+Operating Systems (OS)
+
+An Operating System is software that manages computer hardware and software resources and provides common services for computer programs.
+
+Key Concepts:
+- Process Management: Scheduling, Synchronization
+- Memory Management: Allocation, Virtual Memory
+- File Systems: Organization, Access Control
+- I/O Management: Device Drivers, Buffering
+- Deadlock: Prevention, Avoidance, Detection
+
+OS acts as an intermediary between users and hardware.

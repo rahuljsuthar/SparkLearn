@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Results - SparkLearn: Ignite Your Learning {% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Quiz Results</h1>
+
+    <div class="results-section">
+        {% if is_correct is defined %}
+        <div class="result-card">
+            <h2>Last Question Result</h2>
+            <div class="result-status {{ 'correct' if is_correct else 'incorrect' }}">
+                {% if is_correct %}
+                <div class="icon">✓</div>
+                <h3>Correct!</h3>
+                {% else %}
+                <div class="icon">✗</div>
+                <h3>Incorrect</h3>
+                {% endif %}
+            </div>
+
+            {% if not is_correct %}
+                {% if selected_answer %}
+                <div class="selected-answer">
+                    <h4>Your Answer:</h4>
+                    <p>{{ selected_text }}</p>
+                </div>
+                {% endif %}
+                <div class="correct-answer">
+                    <h4>Correct Answer:</h4>
+                    <p>{{ correct_text }}</p>
+                </div>
+            {% endif %}
+
+            <div class="actions">
+                <form method="POST" action="{{ url_for('next_question') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-primary">Next Question</button>
+                </form>
+                <a href="{{ url_for('subjects') }}" class="btn btn-secondary">Back to Subjects</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="score-card">
+            <h2>Your Final Score</h2>
+            <div class="score-display">{{ ((quiz_score / total_questions) * 100)|round }}%</div>
+            <p>You answered {{ quiz_score }} out of {{ total_questions }} questions correctly.</p>
+            <p class="score-message">
+                {% set score_percent = ((quiz_score / total_questions) * 100)|round %}
+                {% if score_percent >= 80 %}
+                Excellent! You've mastered this topic!
+                {% elif score_percent >= 60 %}
+                Good job! Keep practicing to improve further.
+                {% else %}
+                Keep learning! Practice makes perfect.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('generate_quiz') }}" class="btn btn-primary">Take Another Quiz</a>
+            <a href="{{ url_for('subjects') }}" class="btn btn-secondary">Back to Subjects</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.results-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.score-card, .result-card {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.score-display {
+    font-size: 48px;
+    font-weight: bold;
+    color: #007bff;
+    margin: 20px 0;
+}
+
+.score-message {
+    font-size: 18px;
+    color: #666;
+    margin: 15px 0;
+}
+
+.result-status {
+    margin: 20px 0;
+}
+
+.result-status.correct {
+    color: #28a745;
+}
+
+.result-status.incorrect {
+    color: #dc3545;
+}
+
+.icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.correct-answer {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.correct-answer h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+</style>
+{% endblock %}

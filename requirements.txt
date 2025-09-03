@@ -1,0 +1,5 @@
+google-generativeai
+flask
+gtts
+opencv-python
+python-dotenv

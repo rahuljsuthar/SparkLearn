@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Doubt Section - SparkLearn: Ignite Your Learning everywhere and now{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Doubt Section</h1>
+    <p>Welcome, {{ user_name }}!</p>
+
+    <div class="doubt-section">
+        <h2>Ask Your Doubt</h2>
+        <form method="POST" action="{{ url_for('doubt') }}">
+            <div class="form-group">
+                <label for="doubt">Enter your doubt:</label>
+                <textarea name="doubt" id="doubt" rows="4" cols="50" placeholder="Type your question here..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Doubt</button>
+        </form>
+
+        {% if doubt_response %}
+        <div class="response-section">
+            <h3>AI Response:</h3>
+            <div class="response">{{ doubt_response }}</div>
+            <button onclick="readDoubt()" class="btn btn-secondary">Read Aloud</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.doubt-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.response-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.response {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+</style>
+
+<script>
+function readDoubt() {
+    fetch('{{ url_for("read_doubt") }}')
+        .then(response => response.blob())
+        .then(blob => {
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.play();
+        })
+        .catch(error => console.error('Error playing audio:', error));
+}
+</script>
+{% endblock %}

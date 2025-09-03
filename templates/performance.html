@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Performance - SparkLearn: Ignite Your Learning everywhere and now{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Performance Dashboard</h1>
+    <p>Welcome, {{ user_name }}!</p>
+
+    <div class="performance-section">
+        <h2>Your Learning Statistics</h2>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Usage Time</h3>
+                <p class="stat-value">{{ usage_time }} seconds</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Face Detection Events</h3>
+                <p class="stat-value">{{ face_detected_times|length }}</p>
+            </div>
+        </div>
+
+        {% if face_detected_times %}
+        <div class="face-detection-section">
+            <h3>Face Detection Timeline</h3>
+            <div class="timeline">
+                {% for time in face_detected_times %}
+                <div class="timeline-item">
+                    <span class="time">{{ time }}</span>
+                    <span class="event">Face detected</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.performance-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-card h3 {
+    margin: 0 0 10px 0;
+    color: #666;
+    font-size: 16px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+    margin: 0;
+}
+
+.face-detection-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline {
+    margin-top: 15px;
+}
+
+.timeline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+}
+
+.time {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.event {
+    color: #666;
+}
+</style>
+{% endblock %}

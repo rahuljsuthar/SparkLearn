@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Progress - SparkLearn: Ignite Your Learning everywhere and now{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Learning Progress</h1>
+    <p>Welcome, {{ user_name }}!</p>
+
+    <div class="progress-section">
+        <h2>Your Learning Journey</h2>
+
+        <div class="progress-overview">
+            <div class="progress-card">
+                <h3>Overall Progress</h3>
+                <div class="progress-circle">
+                    <div class="progress-value">75%</div>
+                </div>
+                <p>Topics Completed: 6/8</p>
+            </div>
+
+            <div class="progress-card">
+                <h3>Study Streak</h3>
+                <div class="streak-counter">12 days</div>
+                <p>Keep it up!</p>
+            </div>
+
+            <div class="progress-card">
+                <h3>Quiz Performance</h3>
+                <div class="score-display">85%</div>
+                <p>Average Score</p>
+            </div>
+        </div>
+
+        <div class="topic-progress">
+            <h3>Topic-wise Progress</h3>
+            <div class="progress-list">
+                <div class="progress-item">
+                    <span class="topic-name">Data Structures & Algorithms</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%"></div>
+                    </div>
+                    <span class="progress-text">90%</span>
+                </div>
+
+                <div class="progress-item">
+                    <span class="topic-name">Database Management Systems</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 75%"></div>
+                    </div>
+                    <span class="progress-text">75%</span>
+                </div>
+
+                <div class="progress-item">
+                    <span class="topic-name">Computer Networks</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <span class="progress-text">60%</span>
+                </div>
+
+                <div class="progress-item">
+                    <span class="topic-name">Operating Systems</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%"></div>
+                    </div>
+                    <span class="progress-text">80%</span>
+                </div>
+
+                <div class="progress-item">
+                    <span class="topic-name">Object-Oriented Programming</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                    <span class="progress-text">85%</span>
+                </div>
+
+                <div class="progress-item">
+                    <span class="topic-name">Aptitude</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%"></div>
+                    </div>
+                    <span class="progress-text">70%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <span class="activity-time">2 hours ago</span>
+                    <span class="activity-desc">Completed DSA quiz with 95% score</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-time">1 day ago</span>
+                    <span class="activity-desc">Learned about SQL joins</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-time">2 days ago</span>
+                    <span class="activity-desc">Practiced aptitude questions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.progress-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.progress-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.progress-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.progress-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+}
+
+.progress-value {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.streak-counter {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
+    margin: 10px 0;
+}
+
+.score-display {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+    margin: 10px 0;
+}
+
+.topic-progress, .recent-activity {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.progress-list {
+    margin-top: 15px;
+}
+
+.progress-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.topic-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.progress-bar {
+    width: 200px;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin: 0 15px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #28a745;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    width: 40px;
+    text-align: right;
+    font-weight: 500;
+}
+
+.activity-list {
+    margin-top: 15px;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-time {
+    color: #666;
+    font-size: 14px;
+}
+
+.activity-desc {
+    color: #333;
+}
+</style>
+{% endblock %}

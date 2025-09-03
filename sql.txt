@@ -1,0 +1,11 @@
+Structured Query Language (SQL)
+
+SQL is a standard language for managing data held in a relational database management system.
+
+Key Concepts:
+- DDL: Data Definition Language (CREATE, ALTER, DROP)
+- DML: Data Manipulation Language (SELECT, INSERT, UPDATE, DELETE)
+- DCL: Data Control Language (GRANT, REVOKE)
+- TCL: Transaction Control Language (COMMIT, ROLLBACK)
+
+SQL allows users to query, insert, update, and modify data.

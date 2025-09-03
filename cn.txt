@@ -1,0 +1,13 @@
+Computer Networks (CN)
+
+Computer Networks are systems that connect computers to share resources and information.
+
+Key Topics:
+- Network Types: LAN, WAN, MAN
+- OSI Model: 7 layers (Physical, Data Link, Network, Transport, Session, Presentation, Application)
+- TCP/IP Model
+- IP Addressing and Subnetting
+- Routing and Switching
+- Protocols: HTTP, FTP, TCP, UDP
+
+Understanding CN is essential for communication between devices and network security.

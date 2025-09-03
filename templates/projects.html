@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Projects - SparkLearn: Ignite Your Learning {% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Project Ideas</h1>
+    <p>Welcome, {{ user_name }}!</p>
+
+    <div class="projects-section">
+        <h2>Build Your Portfolio</h2>
+        <p>Here are some project ideas to help you apply what you've learned and build an impressive portfolio for job applications.</p>
+
+        <div class="projects-grid">
+            <div class="project-card">
+                <h3>Task Management System</h3>
+                <p>Build a web application for managing tasks with features like user authentication, CRUD operations, and real-time updates.</p>
+                <div class="tech-stack">
+                    <span class="tech">Flask</span>
+                    <span class="tech">SQLite</span>
+                    <span class="tech">JavaScript</span>
+                </div>
+                <div class="difficulty">Intermediate</div>
+            </div>
+
+            <div class="project-card">
+                <h3>E-commerce Platform</h3>
+                <p>Create a full-featured online store with shopping cart, payment integration, and admin dashboard.</p>
+                <div class="tech-stack">
+                    <span class="tech">Flask</span>
+                    <span class="tech">PostgreSQL</span>
+                    <span class="tech">Stripe API</span>
+                </div>
+                <div class="difficulty">Advanced</div>
+            </div>
+
+            <div class="project-card">
+                <h3>Chat Application</h3>
+                <p>Develop a real-time chat application with multiple chat rooms and private messaging.</p>
+                <div class="tech-stack">
+                    <span class="tech">Flask-SocketIO</span>
+                    <span class="tech">Redis</span>
+                    <span class="tech">WebSocket</span>
+                </div>
+                <div class="difficulty">Advanced</div>
+            </div>
+
+            <div class="project-card">
+                <h3>Blog Platform</h3>
+                <p>Build a blogging platform with user authentication, rich text editor, and comment system.</p>
+                <div class="tech-stack">
+                    <span class="tech">Flask</span>
+                    <span class="tech">Markdown</span>
+                    <span class="tech">SQLite</span>
+                </div>
+                <div class="difficulty">Beginner</div>
+            </div>
+
+            <div class="project-card">
+                <h3>Weather Dashboard</h3>
+                <p>Create a weather dashboard that displays current weather and forecasts using external APIs.</p>
+                <div class="tech-stack">
+                    <span class="tech">Flask</span>
+                    <span class="tech">Weather API</span>
+                    <span class="tech">Chart.js</span>
+                </div>
+                <div class="difficulty">Beginner</div>
+            </div>
+
+            <div class="project-card">
+                <h3>URL Shortener</h3>
+                <p>Build a URL shortening service with analytics and custom short URLs.</p>
+                <div class="tech-stack">
+                    <span class="tech">Flask</span>
+                    <span class="tech">Redis</span>
+                    <span class="tech">Base62 Encoding</span>
+                </div>
+                <div class="difficulty">Intermediate</div>
+            </div>
+        </div>
+
+        <div class="project-tips">
+            <h3>Project Development Tips</h3>
+            <ul>
+                <li>Start with a clear project plan and requirements</li>
+                <li>Use version control (Git) from the beginning</li>
+                <li>Write clean, well-documented code</li>
+                <li>Test your application thoroughly</li>
+                <li>Deploy your project to a hosting platform</li>
+                <li>Document your project with a README file</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.projects-section {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.project-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+}
+
+.project-card h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.project-card p {
+    color: #666;
+    margin: 0 0 15px 0;
+    line-height: 1.5;
+}
+
+.tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.tech {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.difficulty {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.difficulty {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.project-tips {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 30px;
+}
+
+.project-tips h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+
+.project-tips ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.project-tips li {
+    margin-bottom: 8px;
+    color: #666;
+    line-height: 1.5;
+}
+</style>
+{% endblock %}

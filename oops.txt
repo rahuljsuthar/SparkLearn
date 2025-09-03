@@ -1,0 +1,12 @@
+Object-Oriented Programming System (OOPS)
+
+OOPS is a programming paradigm based on the concept of "objects" which contain data and methods.
+
+Key Concepts:
+- Classes and Objects
+- Encapsulation: Bundling data and methods
+- Inheritance: Deriving new classes from existing ones
+- Polymorphism: Ability to take many forms
+- Abstraction: Hiding complex implementation details
+
+OOPS helps in designing modular and reusable code.

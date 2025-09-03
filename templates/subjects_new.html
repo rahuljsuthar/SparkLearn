@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}SparkLearn: Ignite Your Learning {% endblock %}
+
+<!-- Removed duplicate block head to fix TemplateAssertionError -->
+
+{% block content %}
+<div class="ulearn-container">
+    <div class="ulearn-header">
+        <h1>SparkLearn: Ignite Your Learning </h1>
+    </div>
+
+    {% if current_topic %}
+    <!-- Topic Content Section -->
+    <div class="topic-section">
+        <h2>Topic: {{ current_topic }}</h2>
+        <p>SparkLearn: Let's learn about this topic.</p>
+
+        <div class="content-box">
+            <pre>{{ current_content }}</pre>
+        </div>
+
+        <!-- Voice Reading Button -->
+        <div class="voice-controls">
+            <button onclick="readAloud()" class="btn btn-primary">Read Aloud</button>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('next_topic') }}" class="btn btn-success">Continue to next topic</a>
+            <a href="{{ url_for('doubts') }}" class="btn btn-warning">Ask Doubts</a>
+            <a href="{{ url_for('generate_quiz') }}" class="btn btn-info">Take Quiz</a>
+            <a href="{{ url_for('quit') }}" class="btn btn-danger">Quit</a>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Subject Selection Section -->
+    <div class="subjects-section">
+        <h2>Welcome to SparkLearn, {{ user_name }}!</h2>
+        <p>Select a subject to start learning.</p>
+
+        {% if session.get('last_topic_index') is not none and session.get('last_topic_index') >= 0 %}
+        <div class="resume-section">
+            <p>You were learning: <strong>{{ subjects[session.get('last_topic_index', 0)].name }}</strong></p>
+            <a href="{{ url_for('resume_learning') }}" class="btn btn-success">Resume Learning</a>
+        </div>
+        {% endif %}
+
+        <div class="subjects-grid">
+            {% for subject in subjects %}
+            <div class="subject-card">
+                <h3>{{ subject.name }}</h3>
+                <p>Learn about {{ subject.name }}</p>
+                <a href="{{ url_for('select_topic', topic_index=loop.index0) }}" class="btn btn-primary">Start Learning</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Doubts Section -->
+    {% if show_doubts %}
+    <div id="doubts-section" class="doubts-section">
+        <h2>Ask your doubts</h2>
+        <form method="POST" action="{{ url_for('submit_doubt') }}">
+            <div class="form-group">
+                <textarea name="doubt" placeholder="Enter your doubt..." required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Doubt</button>
+                <button onclick="hideDoubts()" class="btn btn-secondary">Back to Topics</button>
+            </div>
+        </form>
+
+        {% if doubt_response %}
+        <div class="doubt-response">
+            <h3>SparkLearn Response:</h3>
+            <p>{{ doubt_response }}</p>
+            <button onclick="readDoubtResponse()" class="btn btn-info">Read Answer Aloud</button>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Quiz Section -->
+    {% if show_quiz %}
+    <div id="quiz-section" class="quiz-section">
+        <p>Please use the dedicated Quiz page to take quizzes and view results.</p>
+        <a href="{{ url_for('quiz') }}" class="btn btn-primary">Go to Quiz Page</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Audio elements for text-to-speech -->
+<audio id="contentAudio" controls style="display: none;"></audio>
+<audio id="doubtAudio" controls style="display: none;"></audio>
+
+<script>
+function readAloud() {
+    fetch('{{ url_for("read_aloud") }}')
+        .then(response => response.blob())
+        .then(blob => {
+            const audio = document.getElementById('contentAudio');
+            audio.src = URL.createObjectURL(blob);
+            audio.play();
+        });
+}
+
+function readDoubtResponse() {
+    fetch('{{ url_for("read_doubt") }}')
+        .then(response => response.blob())
+        .then(blob => {
+            const audio = document.getElementById('doubtAudio');
+            audio.src = URL.createObjectURL(blob);
+            audio.play();
+        });
+}
+
+function showDoubts() {
+    document.getElementById('doubts-section').style.display = 'block';
+    document.getElementById('doubts-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideDoubts() {
+    document.getElementById('doubts-section').style.display = 'none';
+}
+</script>
+
+{% if show_doubts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const doubtsSection = document.getElementById('doubts-section');
+    if (doubtsSection) {
+        doubtsSection.style.display = 'block';
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
+
+<!-- Removed duplicate block head to fix TemplateAssertionError -->

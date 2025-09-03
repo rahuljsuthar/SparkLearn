@@ -1,0 +1,20 @@
+Data Structures and Algorithms (DSA)
+
+Data Structures are ways to organize and store data for efficient access and modification. Algorithms are step-by-step procedures for calculations.
+
+Common Data Structures:
+- Arrays
+- Linked Lists
+- Stacks
+- Queues
+- Trees (Binary Trees, Binary Search Trees, AVL Trees)
+- Graphs
+- Hash Tables
+
+Common Algorithms:
+- Sorting (Bubble, Merge, Quick)
+- Searching (Linear, Binary)
+- Graph Algorithms (DFS, BFS, Dijkstra)
+- Dynamic Programming
+
+Understanding DSA is crucial for problem-solving and optimizing code performance.

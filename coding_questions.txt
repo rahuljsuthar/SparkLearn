@@ -1,0 +1,25 @@
+Frequent Coding Questions
+
+Here are some common coding interview questions:
+
+1. Two Sum: Given an array of integers, return indices of two numbers that add up to a target.
+
+2. Reverse String: Write a function to reverse a string.
+
+3. Palindrome Check: Check if a string is a palindrome.
+
+4. Fibonacci Sequence: Generate the nth Fibonacci number.
+
+5. Merge Two Sorted Lists: Merge two sorted linked lists.
+
+6. Valid Parentheses: Check if parentheses are valid.
+
+7. Maximum Subarray: Find the contiguous subarray with the largest sum.
+
+8. Climbing Stairs: Number of ways to climb n stairs.
+
+9. Binary Tree Traversal: Implement inorder, preorder, postorder traversal.
+
+10. Sorting Algorithms: Implement bubble sort, quick sort, merge sort.
+
+Practice these questions to prepare for coding interviews.

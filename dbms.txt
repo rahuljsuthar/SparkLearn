@@ -1,0 +1,53 @@
+A Database is an organized collection of related data. A Database Management System (DBMS) is the software used to manage, store, and retrieve this data, overcoming issues of older file-processing systems like data redundancy, inconsistency, and security problems.
+
+## Database Design and Structure
+ER Diagram: An Entity-Relationship diagram is a visual model of the database's logical structure. It consists of:
+
+Entities: Real-world objects (e.g., Student). A strong entity has a primary key, while a weak entity doesn't and depends on another entity.
+
+Attributes: Properties of an entity (e.g., Roll_no, Name). They can be simple, composite, multi-valued, derived, or key attributes.
+
+Relationships: Associations between entities, defined by cardinality (one-to-one, one-to-many, many-to-many).
+
+Keys: Attributes used to uniquely identify records.
+
+Primary Key: The main unique identifier for a record.
+
+Foreign Key: A key used to link two tables together.
+
+Other types include Super, Candidate, Alternate, and Composite keys.
+
+Constraints: Rules that ensure data correctness, such as Domain, Key, and Integrity constraints.
+
+## Normalization
+Normalization is the process of organizing a database to reduce data redundancy and improve data integrity. It involves dividing larger tables into smaller, well-structured ones.
+
+1NF (First Normal Form): Ensures each cell contains a single, atomic value.
+
+2NF (Second Normal Form): Is in 1NF and has no partial dependencies (where a non-key attribute depends on only part of a composite primary key).
+
+3NF (Third Normal Form): Is in 2NF and has no transitive dependencies (where a non-key attribute depends on another non-key attribute).
+
+BCNF (Boyce-Codd Normal Form): A stricter version of 3NF where for every non-trivial functional dependency A→B, A must be a super key.
+
+## Transactions and Concurrency
+Transaction: A single logical unit of work, like transferring money. Transactions follow the ACID properties:
+
+Atomicity: All operations complete, or none do.
+
+Consistency: The database remains in a valid state.
+
+Isolation: Concurrent transactions don't interfere with each other.
+
+Durability: Committed changes are permanent.
+
+Schedules: The order of execution for concurrent transaction operations. A serializable schedule is a non-serial (concurrent) schedule that produces the same result as some serial (one-by-one) schedule, ensuring consistency.
+
+## Data Manipulation and File Structures
+Relational Algebra: A procedural query language that uses operators like Select (σ), Project (π), Join (⋈), Union (U), and Intersection (∩) to manipulate data.
+
+File Structures & Indexing: Methods for organizing data for efficient retrieval.
+
+Indexes (Primary, Clustering, Secondary): Data structures that improve the speed of data retrieval operations.
+
+B-Trees and B+ Trees: Self-balancing tree data structures used to store and retrieve data from a disk efficiently. B+ trees are commonly used in databases as they store all data in leaf nodes, allowing for faster sequential access.
