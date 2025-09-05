@@ -1,6 +1,9 @@
 # SparkLearn: Ignite Your Learning
 An AI-Powered Web Application for Interactive Learning in Placement Preparation
 
+## 🌐 Live Demo
+[Try SparkLearn Live](https://sparklearn.onrender.com/)
+
 SparkLearn is a Flask-based web application that harnesses the power of Google Gemini AI to deliver automated tutoring on various computer science and aptitude topics. This application generates questions, provides detailed explanations, and allows users to learn interactively.
 
 ### Requirements
