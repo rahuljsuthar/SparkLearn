@@ -1,7 +1,21 @@
-# Quiz Flow Correction TODO
+# Hosting AI Tutor Application on Render
 
-- [x] Remove double increment of question index in submit_quiz_answer route in app.py
-- [x] Add shuffling of answer options in /quiz route in app.py to randomize order
-- [x] Update quiz_result.html to display correct_text instead of correct_answer letter
-- [x] Update quiz_result.html to show selected_text when answer is incorrect
-- [x] Test the corrected quiz flow from start to finish
+## Completed Tasks
+- [x] Create Procfile for web process definition
+- [x] Create render.yaml for Render deployment configuration
+- [x] Update app.py for production (host='0.0.0.0', port from env, debug=False)
+- [x] Add gunicorn to requirements.txt
+
+## Next Steps
+- [ ] Push project to GitHub repository
+- [ ] Sign up for Render account (https://render.com)
+- [ ] Connect GitHub repository to Render
+- [ ] Set GEMINI_API_KEY environment variable in Render dashboard
+- [ ] Deploy the application on Render
+- [ ] Test the live application
+- [ ] Monitor for any deployment issues (e.g., OpenCV dependencies)
+
+## Notes
+- Ensure .env file is not committed to GitHub (already in .gitignore)
+- Render free tier provides 750 hours/month
+- If issues arise, check Render logs for debugging

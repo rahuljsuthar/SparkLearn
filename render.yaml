@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: ai-tutor-app
+    runtime: python3
+    source: git
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false  # Set this manually in Render dashboard
