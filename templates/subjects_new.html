@@ -76,7 +76,11 @@
         {% if doubt_response %}
         <div class="doubt-response">
             <h3>SparkLearn Response:</h3>
-            <p>{{ doubt_response }}</p>
+            <div class="doubt-text">
+                {% for paragraph in doubt_response.split('\n\n') %}
+                    <p>{{ paragraph }}</p>
+                {% endfor %}
+            </div>
             <button onclick="readDoubtResponse()" class="btn btn-info">Read Answer Aloud</button>
         </div>
         {% endif %}

@@ -20,41 +20,41 @@ api_key = os.getenv('GEMINI_API_KEY')
 genai.configure(api_key=api_key)
 
 # Initialize the model
-model = genai.GenerativeModel('gemini-2.0-flash')
+model = genai.GenerativeModel('gemini-1.5-pro')
 
 # List of placement preparation topics and corresponding files
 placement_topics = [
     {
         "topic": "DBMS",
-        "file": "dbms.txt"
+        "file": "content/dbms.txt"
     },
     {
         "topic": "SQL",
-        "file": "sql.txt"
+        "file": "content/sql.txt"
     },
     {
         "topic": "DSA",
-        "file": "dsa.txt"
+        "file": "content/dsa.txt"
     },
     {
         "topic": "OOPS",
-        "file": "oops.txt"
+        "file": "content/oops.txt"
     },
     {
         "topic": "CN",
-        "file": "cn.txt"
+        "file": "content/cn.txt"
     },
     {
         "topic": "OS",
-        "file": "os.txt"
+        "file": "content/os.txt"
     },
     {
         "topic": "Aptitude",
-        "file": "aptitude.txt"
+        "file": "content/aptitude.txt"
     },
     {
         "topic": "Coding Questions",
-        "file": "coding_questions.txt"
+        "file": "content/coding_questions.txt"
     },
     # Add more topics and files as needed
 ]
@@ -159,11 +159,65 @@ def doubt():
         doubt_text = request.form.get('doubt', '').strip()
         if doubt_text:
             try:
+                formatted_prompt = f"""
+You are a comprehensive AI tutor. Provide a COMPLETE, DETAILED answer to this question.
+
+QUESTION: {doubt_text}
+
+REQUIREMENTS:
+- Answer must be 100% COMPLETE - do not leave anything out
+- Include all relevant information, examples, and explanations
+- Structure your response clearly with sections if needed
+- For technical questions: include definition, concepts, examples, and details
+- For problem-solving: include step-by-step solution and final answer
+- Do not use phrases like "in summary" or "to conclude" unless the answer is truly complete
+
+STRUCTURED RESPONSE FORMAT:
+1. Main Answer/Explanation
+2. Key Points/Details
+3. Examples (if applicable)
+4. Additional Information (if needed)
+
+Provide the complete answer now:
+"""
                 response = model.generate_content(
-                    contents=doubt_text,
-                    generation_config=genai.types.GenerationConfig(max_output_tokens=500)
+                    contents=formatted_prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        max_output_tokens=1500,
+                        temperature=0.1,
+                        top_p=0.8,
+                        top_k=40
+                    )
                 )
                 doubt_response = response.text
+
+                # Check if response is complete and retry if necessary
+                max_retries = 2
+                retry_count = 0
+                while retry_count < max_retries and (len(doubt_response.strip()) < 100 or doubt_response.strip().endswith(('...', 'in', 'the', 'a', 'an', 'and', 'or', 'but', 'so', 'because', 'although', 'while', 'when', 'where', 'why', 'how'))):
+                    retry_count += 1
+                    retry_prompt = f"""
+The previous answer was incomplete. Please provide a COMPLETE answer to: {doubt_text}
+
+Requirements:
+- Answer must be 100% COMPLETE
+- Include all relevant information
+- Do not cut off mid-sentence
+- Provide full explanations and examples
+
+Complete answer:
+"""
+                    response = model.generate_content(
+                        contents=retry_prompt,
+                        generation_config=genai.types.GenerationConfig(
+                            max_output_tokens=1500,
+                            temperature=0.1,
+                            top_p=0.8,
+                            top_k=40
+                        )
+                    )
+                    doubt_response = response.text
+
                 session['doubt_response'] = doubt_response
             except Exception as e:
                 doubt_response = f"Error: {str(e)}"
@@ -332,8 +386,21 @@ def submit_doubt():
 
     if doubt.strip():
         try:
+            formatted_prompt = f"""
+Please provide a clear, well-structured answer to the following question about {current_topic}:
+
+Question: {doubt}
+
+Please structure your response with:
+- Clear explanations using paragraphs to separate different ideas
+- Use bullet points or numbered lists for steps or key points
+- Include examples if relevant
+- Keep the response concise but comprehensive
+
+Answer:
+"""
             response = model.generate_content(
-                contents=doubt,
+                contents=formatted_prompt,
                 generation_config=genai.types.GenerationConfig(max_output_tokens=500)
             )
             # Store doubt response per subject/topic
