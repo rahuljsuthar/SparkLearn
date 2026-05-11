@@ -1,6 +1,9 @@
 # 🎯 SparkLearn — Ignite Your Leanrning
 
 A complete, local-first AI-powered placement preparation platform. Runs fully on CPU.
+## 🌐 Live Demo
+
+[🚀 Open SparkLearn](https://sparklearn-ignite-your-learning.onrender.com/)
 
 ---
 
