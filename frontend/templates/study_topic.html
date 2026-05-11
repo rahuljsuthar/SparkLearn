@@ -1,0 +1,10 @@
+{% set active_page = 'study' %}
+{% extends "base.html" %}
+{% block title %}{{ topic.name }} — PlacementAI{% endblock %}
+{% block page_title %}Study Material{% endblock %}
+{% block breadcrumb %}Study › {{ topic.name }}{% endblock %}
+{% block content %}
+{% with topics=topics, topic=topic, content=content %}
+{% include "study_content.html" %}
+{% endwith %}
+{% endblock %}

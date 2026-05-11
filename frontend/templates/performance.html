@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Performance — PlacementAI{% endblock %}
+{% block page_title %}Performance{% endblock %}
+{% block breadcrumb %}Performance Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+<!-- Top Stats -->
+<div class="grid-4 mb-24">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(59,130,246,0.1);color:var(--accent)">📚</div>
+    <div class="stat-value text-accent">{{ stats.topics_completed|length if stats.topics_completed else 0 }}/{{ total_topics }}</div>
+    <div class="stat-label">Topics Covered</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:var(--green)">🧠</div>
+    <div class="stat-value text-green">{{ avg_quiz }}%</div>
+    <div class="stat-label">Avg Quiz Score</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:var(--yellow)">💻</div>
+    <div class="stat-value text-yellow">{{ stats.coding_solved|length if stats.coding_solved else 0 }}</div>
+    <div class="stat-label">Problems Solved</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(139,92,246,0.1);color:var(--purple)">⏱️</div>
+    <div class="stat-value text-purple">{{ ((stats.total_study_time or 0) / 3600)|round(1) }}h</div>
+    <div class="stat-label">Total Study Time</div>
+  </div>
+</div>
+
+<div class="grid-2 mb-24">
+  <!-- Topic Progress -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Topic Progress</div>
+    </div>
+    {% for topic in topics %}
+    {% set done = topic.id in (stats.topics_completed or []) %}
+    <div style="margin-bottom:14px">
+      <div class="flex-between mb-6">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span>{{ topic.icon }}</span>
+          <span style="font-size:13px;font-weight:600">{{ topic.name }}</span>
+        </div>
+        <span class="badge {% if done %}badge-green{% else %}badge-blue{% endif %}">
+          {% if done %}Done{% else %}Pending{% endif %}
+        </span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:{{ '100' if done else '0' }}%;background:{% if done %}var(--green){% else %}rgba(255,255,255,0.1){% endif %}"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Quiz History -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Quiz History</div>
+    </div>
+    {% if stats.quiz_scores %}
+    {% for qs in stats.quiz_scores[-8:] %}
+    {% set pct = (qs.score / qs.total * 100)|round|int %}
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div style="font-size:13px;color:var(--text2);flex:1">{{ qs.topic or 'Mixed' }}</div>
+      <div class="progress-bar" style="width:120px;height:8px">
+        <div class="progress-fill" style="width:{{ pct }}%;background:{% if pct>=70 %}var(--green){% elif pct>=50 %}var(--yellow){% else %}var(--red){% endif %}"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;font-family:var(--mono);color:{% if pct>=70 %}var(--green){% elif pct>=50 %}var(--yellow){% else %}var(--red){% endif %};width:40px;text-align:right">{{ pct }}%</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="text-align:center;padding:32px;color:var(--text3)">
+      <div style="font-size:32px;margin-bottom:12px">🧠</div>
+      <div>No quiz sessions yet</div>
+      <a href="/quiz" class="btn btn-primary btn-sm mt-8">Take a Quiz</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- AI Recommendations -->
+<div class="card card-glow">
+  <div class="flex-between mb-16">
+    <div>
+      <div class="card-title">🤖 AI Placement Readiness Analysis</div>
+      <div class="card-sub">Get personalized feedback and study recommendations</div>
+    </div>
+    <button class="btn btn-primary" onclick="loadFeedback()">
+      <i class="fas fa-magic"></i> Analyze
+    </button>
+  </div>
+  <div id="feedbackArea">
+    <div class="alert alert-info">
+      <i class="fas fa-lightbulb"></i>
+      Click "Analyze" to get AI-powered feedback on your placement readiness.
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+async function loadFeedback() {
+  document.getElementById('feedbackArea').innerHTML = '<div style="text-align:center;padding:24px"><span class="spinner" style="width:32px;height:32px;border-width:3px"></span><div style="color:var(--text2);margin-top:12px">Analyzing your progress...</div></div>';
+  
+  const data = await apiFetch('/api/get_ai_feedback', {});
+  
+  let html = '<div class="grid-3 gap-16 mb-20">';
+  html += `<div style="background:rgba(255,255,255,0.04);padding:20px;border-radius:8px;border:1px solid var(--border);text-align:center">
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Readiness</div>
+    <div style="font-size:36px;font-weight:700;color:var(--green);font-family:var(--mono)">${data.overall_readiness || '?'}</div>
+  </div>`;
+  
+  if(data.strengths) {
+    html += `<div style="background:rgba(16,185,129,0.06);padding:20px;border-radius:8px;border:1px solid rgba(16,185,129,0.2)">
+      <div style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">✅ Strengths</div>
+      ${data.strengths.map(s=>`<div style="font-size:13px;color:var(--text2);margin-bottom:4px">• ${s}</div>`).join('')}
+    </div>`;
+  }
+  if(data.focus_areas) {
+    html += `<div style="background:rgba(245,158,11,0.06);padding:20px;border-radius:8px;border:1px solid rgba(245,158,11,0.2)">
+      <div style="font-size:11px;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📌 Focus Areas</div>
+      ${data.focus_areas.map(s=>`<div style="font-size:13px;color:var(--text2);margin-bottom:4px">• ${s}</div>`).join('')}
+    </div>`;
+  }
+  html += '</div>';
+  
+  if(data.weekly_plan) {
+    html += `<div style="background:rgba(255,255,255,0.04);padding:20px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📅 Suggested Weekly Plan</div>
+      ${data.weekly_plan.map(d=>`<div style="font-size:13px;color:var(--text2);margin-bottom:6px;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:4px">${d}</div>`).join('')}
+    </div>`;
+  }
+  
+  if(data.motivational_message) {
+    html += `<div style="background:rgba(59,130,246,0.08);padding:16px;border-radius:8px;border:1px solid rgba(59,130,246,0.2);font-size:14px;color:var(--text2)">
+      💬 ${data.motivational_message}
+    </div>`;
+  }
+  
+  document.getElementById('feedbackArea').innerHTML = html;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Mock Test — PlacementAI{% endblock %}
+{% block page_title %}Mock Test{% endblock %}
+{% block breadcrumb %}Interview Prep › Mock Test{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;margin:0 auto" class="fade-in">
+  <div class="card" style="text-align:center;padding:40px;margin-bottom:24px">
+    <div style="font-size:64px;margin-bottom:16px">📝</div>
+    <div style="font-size:24px;font-weight:700;margin-bottom:8px">Full Mock Placement Test</div>
+    <div style="color:var(--text3);margin-bottom:28px">Simulate a complete placement exam with all sections</div>
+    
+    <div class="grid-3 gap-16 mb-28" style="text-align:left">
+      <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:16px">
+        <div style="font-size:24px;margin-bottom:6px">🧮</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">Aptitude</div>
+        <div style="font-size:12px;color:var(--text3)">10 questions · 15 min</div>
+      </div>
+      <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:16px">
+        <div style="font-size:24px;margin-bottom:6px">💻</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">Technical</div>
+        <div style="font-size:12px;color:var(--text3)">10 questions · 15 min</div>
+      </div>
+      <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:16px">
+        <div style="font-size:24px;margin-bottom:6px">🌐</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">Coding</div>
+        <div style="font-size:12px;color:var(--text3)">1 problem · 30 min</div>
+      </div>
+    </div>
+    
+    <a href="/quiz" class="btn btn-primary btn-lg mb-12" style="display:block;text-align:center">
+      <i class="fas fa-play"></i> Start Full Mock Test
+    </a>
+    <div style="font-size:13px;color:var(--text3)">The quiz engine handles the full test. Select "Mixed" with 20 questions for a full simulation.</div>
+  </div>
+  
+  <div class="grid-2 gap-16">
+    <a href="/interview" class="card" style="text-decoration:none;color:var(--text);transition:all 0.2s;cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''">
+      <div style="font-size:28px;margin-bottom:8px">🎤</div>
+      <div style="font-weight:700;margin-bottom:4px">HR Interview Simulation</div>
+      <div style="font-size:13px;color:var(--text3)">Practice with voice + face tracking</div>
+    </a>
+    <a href="/coding" class="card" style="text-decoration:none;color:var(--text);transition:all 0.2s;cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor=''">
+      <div style="font-size:28px;margin-bottom:8px">💻</div>
+      <div style="font-weight:700;margin-bottom:4px">Coding Challenge</div>
+      <div style="font-size:13px;color:var(--text3)">Timed coding problems</div>
+    </a>
+  </div>
+</div>
+{% endblock %}

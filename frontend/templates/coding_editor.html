@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% block title %}Coding Lab — PlacementAI{% endblock %}
+{% block page_title %}Coding Lab{% endblock %}
+{% block breadcrumb %}Coding Lab{% endblock %}
+
+{% block extra_head %}
+<style>
+.editor-layout { display: grid; grid-template-columns: 340px 1fr; gap: 0; height: calc(100vh - 130px); }
+.problem-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius) 0 0 var(--radius);
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+.problem-header { padding: 20px; border-bottom: 1px solid var(--border); }
+.problem-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.problem-body { padding: 20px; flex:1; overflow-y:auto; }
+.problem-section { margin-bottom: 20px; }
+.problem-section-title {
+  font-size: 11px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+}
+.example-box {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius2); padding: 14px; font-family: var(--mono);
+  font-size: 12px;
+}
+.example-box .label { color: var(--text3); margin-bottom: 4px; }
+.example-box .value { color: var(--cyan); }
+.constraint { font-size: 12px; color: var(--text2); margin-bottom: 4px; font-family: var(--mono); }
+.constraint::before { content: '•'; color: var(--accent); margin-right: 6px; }
+
+.editor-panel {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border); border-left: none;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  overflow: hidden;
+}
+.editor-toolbar {
+  background: var(--bg2); padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.lang-btn {
+  padding: 5px 14px; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text2); font-family: var(--mono); font-size: 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.lang-btn.active { background: rgba(59,130,246,0.15); color: var(--accent); border-color: rgba(59,130,246,0.4); }
+
+.code-editor {
+  flex: 1; position: relative; background: #0a0e18; overflow: hidden;
+}
+#codeArea {
+  width: 100%; height: 100%;
+  background: transparent; border: none; outline: none;
+  color: #e2e8f0; font-family: var(--mono); font-size: 14px;
+  line-height: 1.6; padding: 20px;
+  resize: none; tab-size: 4; white-space: pre;
+  overflow: auto;
+}
+.line-numbers {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 50px; padding: 20px 10px;
+  background: #08080f; color: var(--text3);
+  font-family: var(--mono); font-size: 14px;
+  line-height: 1.6; text-align: right;
+  border-right: 1px solid var(--border);
+  user-select: none; pointer-events: none;
+  overflow: hidden;
+}
+#codeArea { padding-left: 64px; }
+
+.output-panel {
+  background: var(--bg2); border-top: 1px solid var(--border);
+  height: 220px; display: flex; flex-direction: column;
+}
+.output-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.out-tab {
+  padding: 8px 20px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border-bottom: 2px solid transparent;
+  color: var(--text2); transition: all 0.2s;
+}
+.out-tab.active { border-bottom-color: var(--accent); color: var(--accent); }
+.output-content { flex: 1; padding: 12px 16px; overflow-y: auto; font-family: var(--mono); font-size: 13px; }
+.tc-result {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 6px; margin-bottom: 8px;
+}
+.tc-pass { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
+.tc-fail { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); }
+.tc-icon { font-size: 14px; }
+
+.problem-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+}
+.problem-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none; color: var(--text);
+  display: block;
+}
+.problem-card:hover { border-color: var(--border2); box-shadow: var(--glow); transform: translateY(-3px); }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if problem %}
+<!-- Editor View -->
+<div class="editor-layout">
+  <!-- Problem Panel -->
+  <div class="problem-panel">
+    <div class="problem-header">
+      <div class="flex-between mb-8">
+        <a href="/coding" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div style="display:flex;gap:6px">
+          <span class="badge {% if problem.difficulty=='Easy' %}badge-green{% elif problem.difficulty=='Medium' %}badge-yellow{% else %}badge-red{% endif %}">{{ problem.difficulty }}</span>
+          <span class="badge badge-blue">{{ problem.topic }}</span>
+        </div>
+      </div>
+      <div class="problem-title">{{ problem.title }}</div>
+    </div>
+    
+    <div class="problem-body">
+      <div class="problem-section">
+        <div class="problem-section-title">Description</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.7">{{ problem.description }}</div>
+      </div>
+      
+      {% for ex in problem.examples %}
+      <div class="problem-section">
+        <div class="problem-section-title">Example {{ loop.index }}</div>
+        <div class="example-box">
+          <div class="label">Input:</div>
+          <div class="value">{{ ex.input }}</div>
+          <div class="label mt-8">Output:</div>
+          <div class="value">{{ ex.output }}</div>
+          {% if ex.explanation %}
+          <div class="label mt-8">Explanation:</div>
+          <div style="color:var(--text2)">{{ ex.explanation }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      
+      <div class="problem-section">
+        <div class="problem-section-title">Constraints</div>
+        {% for c in problem.constraints %}
+        <div class="constraint">{{ c }}</div>
+        {% endfor %}
+      </div>
+      
+      <!-- Hint Button -->
+      <div class="problem-section">
+        <button class="btn btn-ghost btn-sm w-full" onclick="getHint()">
+          <i class="fas fa-lightbulb"></i> Get AI Hint
+        </button>
+        <div id="hintBox" class="hidden mt-8" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:12px;font-size:13px;color:var(--text2)"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Editor Panel -->
+  <div class="editor-panel">
+    <div class="editor-toolbar">
+      <div style="display:flex;gap:6px" id="langButtons">
+        <button class="lang-btn active" onclick="switchLang('python',this)">Python</button>
+        <button class="lang-btn" onclick="switchLang('javascript',this)">JavaScript</button>
+        <button class="lang-btn" onclick="switchLang('java',this)">Java</button>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="resetCode()"><i class="fas fa-undo"></i> Reset</button>
+        <button class="btn btn-ghost btn-sm" onclick="reviewCode()"><i class="fas fa-magic"></i> AI Review</button>
+        <button class="btn btn-success" onclick="runCode()"><i class="fas fa-play"></i> Run Code</button>
+      </div>
+    </div>
+    
+    <div class="code-editor">
+      <div class="line-numbers" id="lineNumbers">1</div>
+      <textarea id="codeArea" spellcheck="false" oninput="updateLineNumbers()" onkeydown="handleTab(event)">{{ problem.starter_code.python }}</textarea>
+    </div>
+    
+    <div class="output-panel">
+      <div class="output-tabs">
+        <div class="out-tab active" onclick="switchTab('results',this)">Test Results</div>
+        <div class="out-tab" onclick="switchTab('review',this)">AI Review</div>
+        <div class="out-tab" onclick="switchTab('console',this)">Console</div>
+      </div>
+      <div class="output-content" id="output-results">
+        <div style="color:var(--text3);font-size:13px">Click "Run Code" to test your solution against the test cases.</div>
+      </div>
+      <div class="output-content hidden" id="output-review">
+        <div style="color:var(--text3)">Click "AI Review" for feedback on your code.</div>
+      </div>
+      <div class="output-content hidden" id="output-console">
+        <div style="color:var(--text3)">Console output will appear here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STARTERS = {{ problem.starter_code | tojson }};
+const TEST_CASES = {{ problem.test_cases | tojson }};
+const PROBLEM_TITLE = "{{ problem.title }}";
+const PROBLEM_ID = {{ problem.id }};
+let currentLang = 'python';
+
+function updateLineNumbers() {
+  const lines = document.getElementById('codeArea').value.split('\n').length;
+  document.getElementById('lineNumbers').innerHTML = Array.from({length:lines},(v,i)=>i+1).join('<br>');
+}
+updateLineNumbers();
+
+function handleTab(e) {
+  if(e.key === 'Tab') {
+    e.preventDefault();
+    const ta = document.getElementById('codeArea');
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    ta.value = ta.value.substring(0,start) + '    ' + ta.value.substring(end);
+    ta.selectionStart = ta.selectionEnd = start + 4;
+    updateLineNumbers();
+  }
+}
+
+function switchLang(lang, btn) {
+  currentLang = lang;
+  document.getElementById('codeArea').value = STARTERS[lang] || '';
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateLineNumbers();
+}
+
+function resetCode() {
+  document.getElementById('codeArea').value = STARTERS[currentLang] || '';
+  updateLineNumbers();
+  showToast('Code reset to starter template', 'info');
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.output-content').forEach(c=>c.classList.add('hidden'));
+  document.querySelectorAll('.out-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(`output-${name}`).classList.remove('hidden');
+  el.classList.add('active');
+}
+
+async function runCode() {
+  const code = document.getElementById('codeArea').value;
+  const btn = document.querySelector('.btn-success');
+  btn.innerHTML = '<span class="spinner"></span> Running...';
+  btn.disabled = true;
+  
+  switchTab('results', document.querySelectorAll('.out-tab')[0]);
+  document.getElementById('output-results').innerHTML = '<div style="color:var(--text3)"><span class="spinner"></span> Running test cases...</div>';
+  
+  const data = await apiFetch('/api/run_code', {code, language: currentLang, test_cases: TEST_CASES, problem_id: PROBLEM_ID});
+  
+  if(data.error) {
+    document.getElementById('output-results').innerHTML = `<div style="color:var(--red)">${data.error}</div>`;
+  } else {
+    const passed = data.passed || 0;
+    const total = data.total || TEST_CASES.length;
+    const allPass = passed === total;
+    
+    document.getElementById('output-results').innerHTML = `
+      <div style="margin-bottom:12px;font-weight:700;color:${allPass?'var(--green)':'var(--yellow)'}">
+        ${allPass?'✅':'⚠️'} ${passed}/${total} Test Cases Passed
+      </div>
+      ${(data.results||[]).map((r,i)=>`
+        <div class="tc-result ${r.passed?'tc-pass':'tc-fail'}">
+          <span class="tc-icon">${r.passed?'✅':'❌'}</span>
+          <div style="flex:1">
+            <div style="font-size:12px;color:var(--text2)">Test ${i+1}</div>
+            ${r.error ? `<div style="color:var(--red);font-size:11px">${r.error}</div>` : ''}
+            ${r.output ? `<div style="font-size:11px;color:var(--text3)">Output: ${r.output}</div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+      ${allPass ? `<div style="margin-top:12px"><button class="btn btn-success btn-sm" onclick="markSolved()">🎉 Mark as Solved</button></div>` : ''}
+    `;
+  }
+  
+  btn.innerHTML = '<i class="fas fa-play"></i> Run Code';
+  btn.disabled = false;
+}
+
+async function markSolved() {
+  await apiFetch('/api/mark_solved', {problem_id: PROBLEM_ID});
+  showToast('Problem marked as solved! 🎉', 'success');
+}
+
+async function getHint() {
+  const code = document.getElementById('codeArea').value;
+  const hintBox = document.getElementById('hintBox');
+  hintBox.classList.remove('hidden');
+  hintBox.innerHTML = '<span class="spinner"></span> Getting hint...';
+  const data = await apiFetch('/api/get_code_hint', {problem: PROBLEM_TITLE, code, error: ''});
+  hintBox.innerHTML = data.hint || 'No hint available';
+}
+
+async function reviewCode() {
+  const code = document.getElementById('codeArea').value;
+  switchTab('review', document.querySelectorAll('.out-tab')[1]);
+  document.getElementById('output-review').innerHTML = '<span class="spinner"></span> AI is reviewing your code...';
+  
+  const data = await apiFetch('/api/review_code', {code, problem: PROBLEM_TITLE, language: currentLang});
+  
+  document.getElementById('output-review').innerHTML = `
+    <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap">
+      <div><span style="color:var(--text3)">Time: </span><span style="color:var(--cyan);font-family:var(--mono)">${data.time_complexity||'?'}</span></div>
+      <div><span style="color:var(--text3)">Space: </span><span style="color:var(--purple);font-family:var(--mono)">${data.space_complexity||'?'}</span></div>
+      <div><span style="color:var(--text3)">Quality: </span><span style="color:var(--green)">${data.code_quality_score||'?'}/10</span></div>
+    </div>
+    <div style="font-size:13px;color:var(--text2)">${data.interview_feedback||''}</div>
+    ${data.improvements ? `<div style="margin-top:10px">${data.improvements.map(i=>`<div style="color:var(--yellow);font-size:12px;margin-bottom:3px">• ${i}</div>`).join('')}</div>` : ''}
+  `;
+}
+</script>
+
+{% else %}
+<!-- Problem List View -->
+<div class="flex-between mb-24" style="flex-wrap:wrap;gap:12px">
+  <div>
+    <div style="font-size:22px;font-weight:700">Coding Lab 💻</div>
+    <div class="text-muted">Practice problems with AI feedback</div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm" onclick="filterProblems('all',this)" style="border-color:var(--accent)">All</button>
+    <button class="btn btn-ghost btn-sm" onclick="filterProblems('Easy',this)">Easy</button>
+    <button class="btn btn-ghost btn-sm" onclick="filterProblems('Medium',this)">Medium</button>
+    <button class="btn btn-ghost btn-sm" onclick="filterProblems('Hard',this)">Hard</button>
+  </div>
+</div>
+
+<div class="problem-list" id="problemList">
+  {% for p in problems %}
+  <a href="/coding/{{ p.id }}" class="problem-card" data-difficulty="{{ p.difficulty }}">
+    <div class="flex-between mb-12">
+      <span class="badge {% if p.difficulty=='Easy' %}badge-green{% elif p.difficulty=='Medium' %}badge-yellow{% else %}badge-red{% endif %}">{{ p.difficulty }}</span>
+      <span class="badge badge-purple">{{ p.topic }}</span>
+    </div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px">{{ p.title }}</div>
+    <div style="font-size:12px;color:var(--text3)">{{ p.description[:80] }}...</div>
+  </a>
+  {% endfor %}
+</div>
+
+<script>
+function filterProblems(diff, btn) {
+  document.querySelectorAll('.problem-card').forEach(c => {
+    c.style.display = (diff === 'all' || c.dataset.difficulty === diff) ? 'block' : 'none';
+  });
+  document.querySelectorAll('.topbar-actions button, .flex-between button').forEach(b => b.style.borderColor = '');
+  btn.style.borderColor = 'var(--accent)';
+}
+</script>
+{% endif %}
+{% endblock %}

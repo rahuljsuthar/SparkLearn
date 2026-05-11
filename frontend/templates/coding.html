@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set active_page = 'coding' %}
+{% block title %}Coding Lab — PlacementAI{% endblock %}
+{% block page_title %}Coding Lab{% endblock %}
+{% block breadcrumb %}Coding Lab{% endblock %}
+{% block content %}
+<div class="fade-in">
+<div class="flex-between mb-24" style="flex-wrap:wrap;gap:12px">
+  <div>
+    <div style="font-size:22px;font-weight:700">Coding Lab 💻</div>
+    <div class="text-muted">Practice problems with AI hints and code review</div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm filterBtn" onclick="filterProblems('all',this)" style="border-color:var(--accent);color:var(--accent)">All</button>
+    <button class="btn btn-ghost btn-sm filterBtn" onclick="filterProblems('Easy',this)">Easy</button>
+    <button class="btn btn-ghost btn-sm filterBtn" onclick="filterProblems('Medium',this)">Medium</button>
+    <button class="btn btn-ghost btn-sm filterBtn" onclick="filterProblems('Hard',this)">Hard</button>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px" id="problemList">
+  {% for p in problems %}
+  <a href="/coding/{{ p.id }}" style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all 0.2s;text-decoration:none;color:var(--text);display:block"
+     onmouseover="this.style.borderColor='var(--border2)';this.style.transform='translateY(-3px)';this.style.boxShadow='0 0 24px rgba(59,130,246,0.12)'"
+     onmouseout="this.style.borderColor='';this.style.transform='';this.style.boxShadow=''"
+     data-difficulty="{{ p.difficulty }}">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <span class="badge {% if p.difficulty=='Easy' %}badge-green{% elif p.difficulty=='Medium' %}badge-yellow{% else %}badge-red{% endif %}">{{ p.difficulty }}</span>
+      <span class="badge badge-purple">{{ p.topic }}</span>
+    </div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px">{{ p.id }}. {{ p.title }}</div>
+    <div style="font-size:12px;color:var(--text3)">{{ p.description[:80] }}...</div>
+    <div style="margin-top:14px;font-size:12px;color:var(--accent);font-weight:600">Solve →</div>
+  </a>
+  {% endfor %}
+</div>
+</div>
+<script>
+function filterProblems(diff, btn) {
+  document.querySelectorAll('#problemList a').forEach(c => {
+    c.style.display = (diff==='all' || c.dataset.difficulty===diff) ? 'block' : 'none';
+  });
+  document.querySelectorAll('.filterBtn').forEach(b => { b.style.borderColor=''; b.style.color=''; });
+  btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)';
+}
+</script>
+{% endblock %}

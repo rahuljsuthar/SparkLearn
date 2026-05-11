@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Study Material — PlacementAI{% endblock %}
+{% block page_title %}Study Material{% endblock %}
+{% block breadcrumb %}Learning › Study Material{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+{% if topic %}
+<!-- Topic Content View -->
+<div style="max-width:880px">
+  <div class="flex-between mb-20">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="/study" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i></a>
+      <span style="font-size:28px">{{ topic.icon }}</span>
+      <div>
+        <div style="font-size:20px;font-weight:700">{{ topic.name }}</div>
+        <span class="badge badge-green mt-4">✅ Viewed</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary btn-sm" onclick="readAloud()"><i class="fas fa-volume-up"></i> Read Aloud</button>
+      <button class="btn btn-primary btn-sm" onclick="askDoubt()"><i class="fas fa-question-circle"></i> Ask AI</button>
+    </div>
+  </div>
+  
+  <div class="card mb-16" id="contentCard">
+    <div style="font-family:var(--mono);font-size:13px;line-height:1.8;color:var(--text2);white-space:pre-wrap;max-height:600px;overflow-y:auto;padding-right:8px" id="contentText">{{ content }}</div>
+  </div>
+  
+  <!-- AI Doubt Section -->
+  <div class="card mb-16">
+    <div class="card-title mb-16">🤖 Ask AI About {{ topic.name }}</div>
+    <div style="display:flex;gap:10px">
+      <input type="text" class="form-input" id="doubtInput" placeholder="Ask anything about this topic..." onkeypress="if(event.key==='Enter')askDoubt()">
+      <button class="btn btn-primary" onclick="askDoubt()" id="askBtn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+    <div id="doubtAnswer" class="hidden mt-16" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:16px">
+      <div style="font-size:11px;color:var(--accent);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">AI Answer</div>
+      <div id="answerText" style="font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap"></div>
+    </div>
+  </div>
+  
+  <!-- Navigation -->
+  <div class="flex-between">
+    <a href="/study" class="btn btn-ghost"><i class="fas fa-th"></i> All Topics</a>
+    <a href="/quiz" class="btn btn-primary"><i class="fas fa-brain"></i> Take Quiz on {{ topic.name }}</a>
+  </div>
+</div>
+
+<script>
+async function askDoubt() {
+  const q = document.getElementById('doubtInput').value.trim();
+  if(!q) return;
+  const btn = document.getElementById('askBtn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  document.getElementById('doubtAnswer').classList.remove('hidden');
+  document.getElementById('answerText').textContent = '⏳ Thinking...';
+  
+  const data = await apiFetch('/api/ask_doubt', {question: q, topic: '{{ topic.name }}'});
+  document.getElementById('answerText').textContent = data.answer || data.error || 'No answer available';
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+  btn.disabled = false;
+}
+
+function readAloud() {
+  const text = document.getElementById('contentText').textContent;
+  if('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text.substring(0, 2000));
+    utt.rate = 0.9;
+    window.speechSynthesis.speak(utt);
+    showToast('Reading aloud (first 2000 chars)...', 'info');
+  } else {
+    showToast('Text-to-speech not supported in your browser', 'warning');
+  }
+}
+</script>
+
+{% else %}
+<!-- Topic List -->
+<div style="margin-bottom:28px">
+  <div style="font-size:22px;font-weight:700 mb-4">Study Material 📚</div>
+  <div class="text-muted">Core subjects for placement preparation</div>
+</div>
+
+<div class="grid-auto">
+  {% for topic in topics %}
+  <a href="/study/{{ topic.id }}" style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-decoration:none;color:var(--text);display:block;transition:all 0.2s;position:relative;overflow:hidden" 
+     onmouseover="this.style.borderColor='{{ topic.color }}';this.style.transform='translateY(-4px)';this.style.boxShadow='0 0 24px '+{{ topic.color|tojson }}+'33'"
+     onmouseout="this.style.borderColor='';this.style.transform='';this.style.boxShadow=''">
+    <div style="font-size:36px;margin-bottom:12px">{{ topic.icon }}</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px">{{ topic.name }}</div>
+    <div style="font-size:12px;color:var(--text3)">Study notes + AI Q&A</div>
+    <div style="margin-top:16px;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:{{ topic.color }};font-weight:600">
+      Start Learning <i class="fas fa-arrow-right"></i>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+</div>
+{% endblock %}

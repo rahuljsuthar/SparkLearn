@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SparkLearn{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+.hero-banner {
+  background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(99,102,241,0.08));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius);
+  padding: 32px; margin-bottom: 28px;
+  position: relative; overflow: hidden;
+}
+.hero-banner::before {
+  content: '🎯';
+  position: absolute; right: 32px; top: 50%; transform: translateY(-50%);
+  font-size: 80px; opacity: 0.08;
+}
+.hero-title { font-size: 26px; font-weight: 700; color: var(--text); }
+.hero-title span { color: var(--accent); }
+.hero-sub { color: var(--text2); margin-top: 6px; font-size: 15px; }
+.hero-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+
+.topic-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: var(--radius2);
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  text-decoration: none; color: var(--text);
+  transition: all 0.2s; cursor: pointer;
+}
+.topic-chip:hover { border-color: var(--accent); background: rgba(59,130,246,0.08); transform: translateY(-2px); }
+.topic-chip .chip-icon { font-size: 22px; }
+.topic-chip .chip-name { font-size: 13px; font-weight: 600; }
+.topic-chip .chip-progress { font-size: 11px; color: var(--text3); }
+
+.activity-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
+}
+.activity-text { font-size: 13px; color: var(--text2); flex: 1; }
+.activity-time { font-size: 11px; color: var(--text3); }
+
+.quick-action {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; text-decoration: none; color: var(--text);
+  display: block;
+}
+.quick-action:hover { border-color: var(--border2); box-shadow: var(--glow); transform: translateY(-3px); }
+.qa-icon { font-size: 32px; margin-bottom: 12px; }
+.qa-title { font-size: 14px; font-weight: 700; }
+.qa-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+<!-- Hero -->
+<div class="hero-banner">
+  <div class="hero-title">Welcome back, <span>{{ user.name }}</span>! 🚀</div>
+  <div class="hero-sub">You're on track for your placement goals. Keep the momentum!</div>
+  <div class="hero-actions">
+    <a href="/interview" class="btn btn-primary btn-lg"><i class="fas fa-microphone"></i> Start AI Interview</a>
+    <a href="/quiz" class="btn btn-secondary btn-lg"><i class="fas fa-brain"></i> Take Quiz</a>
+    <a href="/coding" class="btn btn-secondary btn-lg"><i class="fas fa-code"></i> Solve Problems</a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="grid-4 mb-24" id="statsGrid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(59,130,246,0.1);color:var(--accent)">📚</div>
+    <div class="stat-value text-accent" id="stat-topics">{{ stats.topics_completed|length if stats.topics_completed else 0 }}/{{ topics|length }}</div>
+    <div class="stat-label">Topics Studied</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:var(--green)">💻</div>
+    <div class="stat-value text-green" id="stat-coding">{{ stats.coding_solved|length if stats.coding_solved else 0 }}</div>
+    <div class="stat-label">Problems Solved</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:var(--yellow)">🎤</div>
+    <div class="stat-value text-yellow" id="stat-interview">{{ stats.interview_sessions if stats.interview_sessions else 0 }}</div>
+    <div class="stat-label">Interview Sessions</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(139,92,246,0.1);color:var(--purple)">⏱️</div>
+    <div class="stat-value text-purple" id="stat-time">{{ ((stats.total_study_time or 0) / 3600)|round(1) }}h</div>
+    <div class="stat-label">Study Time</div>
+  </div>
+</div>
+
+<!-- Quick Actions + Topics -->
+<div class="grid-2 mb-24">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Quick Actions</div>
+        <div class="card-sub">Jump right in</div>
+      </div>
+    </div>
+    <div class="grid-2" style="gap:12px">
+      <a href="/interview" class="quick-action">
+        <div class="qa-icon">🎤</div>
+        <div class="qa-title">AI Interview</div>
+        <div class="qa-sub">Voice + face tracking</div>
+      </a>
+      <a href="/quiz" class="quick-action">
+        <div class="qa-icon">🧠</div>
+        <div class="qa-title">Quiz Mode</div>
+        <div class="qa-sub">AI-generated Qs</div>
+      </a>
+      <a href="/coding" class="quick-action">
+        <div class="qa-icon">💻</div>
+        <div class="qa-title">Code Lab</div>
+        <div class="qa-sub">Practice problems</div>
+      </a>
+      <a href="/resume" class="quick-action">
+        <div class="qa-icon">📄</div>
+        <div class="qa-title">Resume Check</div>
+        <div class="qa-sub">AI analysis</div>
+      </a>
+      <a href="/mock_test" class="quick-action">
+        <div class="qa-icon">📝</div>
+        <div class="qa-title">Mock Test</div>
+        <div class="qa-sub">Full simulation</div>
+      </a>
+      <a href="/companies" class="quick-action">
+        <div class="qa-icon">🏢</div>
+        <div class="qa-title">Company Prep</div>
+        <div class="qa-sub">Targeted guide</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Study Topics</div>
+        <div class="card-sub">{{ stats.topics_completed|length if stats.topics_completed else 0 }}/{{ topics|length }} completed</div>
+      </div>
+      <a href="/study" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      {% for topic in topics %}
+      {% set done = topic.id in (stats.topics_completed or []) %}
+      <a href="/study/{{ topic.id }}" class="topic-chip">
+        <span class="chip-icon">{{ topic.icon }}</span>
+        <div style="flex:1">
+          <div class="chip-name">{{ topic.name }}</div>
+          <div class="chip-progress">{{ 'Completed' if done else 'Not started' }}</div>
+        </div>
+        {% if done %}
+        <span class="badge badge-green"><i class="fas fa-check"></i> Done</span>
+        {% else %}
+        <span class="badge badge-blue">Start →</span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- AI Feedback CTA -->
+<div class="card card-glow" style="background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(99,102,241,0.05))">
+  <div class="flex-between" style="flex-wrap:wrap;gap:20px">
+    <div>
+      <div class="card-title">🤖 Get AI Performance Feedback</div>
+      <div class="card-sub mt-8">Let AI analyze your progress and give personalized recommendations</div>
+    </div>
+    <button class="btn btn-primary" onclick="getAIFeedback()" id="feedbackBtn">
+      <i class="fas fa-magic"></i> Analyze My Progress
+    </button>
+  </div>
+  <div id="aiFeedbackResult" class="hidden mt-16"></div>
+</div>
+</div>
+
+<script>
+async function getAIFeedback() {
+  const btn = document.getElementById('feedbackBtn');
+  const result = document.getElementById('aiFeedbackResult');
+  btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  btn.disabled = true;
+  
+  const data = await apiFetch('/api/get_ai_feedback', {});
+  
+  if(data.motivational_message || data.overall_readiness) {
+    result.classList.remove('hidden');
+    result.innerHTML = `
+      <div class="divider"></div>
+      <div class="grid-3" style="gap:16px">
+        <div style="background:rgba(255,255,255,0.04);padding:16px;border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Readiness</div>
+          <div style="font-size:32px;font-weight:700;color:var(--green);font-family:var(--mono)">${data.overall_readiness || 'N/A'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);padding:16px;border-radius:8px;border:1px solid var(--border);grid-column:span 2">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">💬 Message</div>
+          <div style="font-size:14px;color:var(--text2)">${data.motivational_message || ''}</div>
+        </div>
+      </div>
+      ${data.focus_areas ? `
+      <div style="margin-top:16px">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">📌 Focus Areas</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${data.focus_areas.map(a=>`<span class="badge badge-yellow">${a}</span>`).join('')}
+        </div>
+      </div>` : ''}
+    `;
+  }
+  btn.innerHTML = '<i class="fas fa-magic"></i> Analyze My Progress';
+  btn.disabled = false;
+}
+</script>
+{% endblock %}

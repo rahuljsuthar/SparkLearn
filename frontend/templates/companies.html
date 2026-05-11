@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Company Prep — PlacementAI{% endblock %}
+{% block page_title %}Company Prep{% endblock %}
+{% block breadcrumb %}Interview Prep › Company Prep{% endblock %}
+
+{% block extra_head %}
+<style>
+.company-btn {
+  padding: 10px 18px; border-radius: 8px;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.04);
+  color: var(--text2); font-family: var(--font); font-size: 14px;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.company-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,0.08); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:900px" class="fade-in">
+  <div class="card mb-24">
+    <div class="card-title mb-16">🏢 Company-Specific Preparation Guide</div>
+    <div class="grid-2 gap-12 mb-16">
+      <div class="form-group" style="margin:0">
+        <div class="form-label">Company Name</div>
+        <input type="text" class="form-input" id="companyInput" placeholder="e.g. Google, TCS, Infosys, Wipro...">
+      </div>
+      <div class="form-group" style="margin:0">
+        <div class="form-label">Role</div>
+        <select class="form-select" id="roleInput">
+          <option>Software Engineer</option>
+          <option>Data Scientist</option>
+          <option>Product Manager</option>
+          <option>Data Analyst</option>
+          <option>DevOps Engineer</option>
+          <option>Full Stack Developer</option>
+          <option>System Engineer</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="form-label">Quick Select</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        {% for c in ['Google', 'Amazon', 'Microsoft', 'TCS', 'Infosys', 'Wipro', 'Accenture', 'Flipkart', 'Paytm', 'Zomato'] %}
+        <button class="company-btn" onclick="document.getElementById('companyInput').value='{{ c }}'">{{ c }}</button>
+        {% endfor %}
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block mt-8" onclick="getCompanyPrep()" id="prepBtn">
+      <i class="fas fa-search"></i> Get Preparation Guide
+    </button>
+  </div>
+  
+  <div id="prepResult"></div>
+</div>
+
+<script>
+async function getCompanyPrep() {
+  const company = document.getElementById('companyInput').value.trim();
+  const role = document.getElementById('roleInput').value;
+  if(!company) { showToast('Please enter a company name', 'warning'); return; }
+  
+  const btn = document.getElementById('prepBtn');
+  btn.innerHTML = '<span class="spinner"></span> Loading...';
+  btn.disabled = true;
+  document.getElementById('prepResult').innerHTML = '<div class="card" style="text-align:center;padding:32px"><span class="spinner" style="width:28px;height:28px;border-width:3px"></span><div style="color:var(--text2);margin-top:12px">AI is preparing your guide...</div></div>';
+  
+  const data = await apiFetch('/api/company_prep', {company, role});
+  
+  if(data.error) {
+    document.getElementById('prepResult').innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+  } else {
+    document.getElementById('prepResult').innerHTML = `
+      <div class="card mb-16" style="background:linear-gradient(135deg,rgba(59,130,246,0.06),rgba(99,102,241,0.04))">
+        <div class="flex-between mb-16" style="flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:22px;font-weight:700">${data.company || company}</div>
+            <div style="color:var(--text3)">${data.role || role}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${data.difficulty ? `<span class="badge ${data.difficulty==='Easy'?'badge-green':data.difficulty==='Hard'?'badge-red':'badge-yellow'}">${data.difficulty}</span>` : ''}
+            ${data.package_range ? `<span class="badge badge-purple">💰 ${data.package_range}</span>` : ''}
+            ${data.prep_timeline ? `<span class="badge badge-cyan">⏱️ ${data.prep_timeline}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid-2 gap-16 mb-16">
+        ${data.rounds ? `
+        <div class="card">
+          <div style="font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📋 Interview Rounds</div>
+          ${data.rounds.map((r,i)=>`<div style="font-size:13px;color:var(--text2);margin-bottom:8px;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px">${r}</div>`).join('')}
+        </div>` : ''}
+        
+        ${data.focus_topics ? `
+        <div class="card">
+          <div style="font-size:12px;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">🎯 Focus Topics</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${data.focus_topics.map(t=>`<span class="badge badge-yellow">${t}</span>`).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+      
+      ${data.sample_questions ? `
+      <div class="card mb-16">
+        <div style="font-size:12px;color:var(--purple);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">💬 Sample Questions</div>
+        ${data.sample_questions.map((q,i)=>`
+          <div style="padding:10px 14px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:6px;margin-bottom:8px;font-size:13px;color:var(--text2)">
+            <span style="color:var(--purple)">${i+1}.</span> ${q}
+          </div>
+        `).join('')}
+      </div>` : ''}
+      
+      ${data.tips ? `
+      <div class="card">
+        <div style="font-size:12px;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">💡 Pro Tips</div>
+        ${data.tips.map(t=>`<div style="font-size:13px;color:var(--text2);margin-bottom:6px">✅ ${t}</div>`).join('')}
+      </div>` : ''}
+    `;
+  }
+  
+  btn.innerHTML = '<i class="fas fa-search"></i> Get Preparation Guide';
+  btn.disabled = false;
+}
+</script>
+{% endblock %}

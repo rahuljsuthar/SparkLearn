@@ -1,0 +1,61 @@
+<div style="max-width:880px" class="fade-in">
+  <div class="flex-between mb-20">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="/study" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i></a>
+      <span style="font-size:28px">{{ topic.icon }}</span>
+      <div>
+        <div style="font-size:20px;font-weight:700">{{ topic.name }}</div>
+        <span class="badge badge-green mt-4">✅ Viewed</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-sm" onclick="readAloud()"><i class="fas fa-volume-up"></i> Read Aloud</button>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('doubtSection').scrollIntoView({behavior:'smooth'})"><i class="fas fa-question-circle"></i> Ask AI</button>
+    </div>
+  </div>
+
+  <div class="card mb-16">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;color:#94a3b8;white-space:pre-wrap;max-height:600px;overflow-y:auto;padding-right:8px" id="contentText">{{ content }}</div>
+  </div>
+
+  <div class="card mb-16" id="doubtSection">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">🤖 Ask AI About {{ topic.name }}</div>
+    <div style="display:flex;gap:10px">
+      <input type="text" class="form-input" id="doubtInput" placeholder="Ask anything about {{ topic.name }}..." onkeypress="if(event.key==='Enter')askDoubt()">
+      <button class="btn btn-primary" onclick="askDoubt()" id="askBtn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+    <div id="doubtAnswer" class="hidden mt-16" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:16px">
+      <div style="font-size:11px;color:#3b82f6;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">AI Answer</div>
+      <div id="answerText" style="font-size:14px;color:#94a3b8;line-height:1.7;white-space:pre-wrap"></div>
+    </div>
+  </div>
+
+  <div class="flex-between">
+    <a href="/study" class="btn btn-ghost"><i class="fas fa-th"></i> All Topics</a>
+    <a href="/quiz" class="btn btn-primary"><i class="fas fa-brain"></i> Take Quiz on {{ topic.name }}</a>
+  </div>
+</div>
+<script>
+async function askDoubt() {
+  const q = document.getElementById('doubtInput').value.trim();
+  if(!q) return;
+  const btn = document.getElementById('askBtn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  document.getElementById('doubtAnswer').classList.remove('hidden');
+  document.getElementById('answerText').textContent = '⏳ Thinking...';
+  const data = await apiFetch('/api/ask_doubt', {question: q, topic: '{{ topic.name }}'});
+  document.getElementById('answerText').textContent = data.answer || data.error || 'No answer available';
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+  btn.disabled = false;
+}
+function readAloud() {
+  const text = document.getElementById('contentText').textContent;
+  if('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text.substring(0, 2000));
+    utt.rate = 0.9; window.speechSynthesis.speak(utt);
+    showToast('Reading aloud...', 'info');
+  } else { showToast('TTS not supported in your browser', 'warning'); }
+}
+</script>

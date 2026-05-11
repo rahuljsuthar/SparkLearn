@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Resume Analyzer — PlacementAI{% endblock %}
+{% block page_title %}Resume Analyzer{% endblock %}
+{% block breadcrumb %}Tools › Resume Analyzer{% endblock %}
+
+{% block content %}
+<div style="max-width:900px" class="fade-in">
+  <div class="grid-2 gap-24">
+    <!-- Input -->
+    <div>
+      <div class="card mb-16">
+        <div class="card-title mb-16">📄 Paste Your Resume</div>
+        <textarea class="form-textarea" id="resumeText" style="min-height:300px;font-family:var(--mono);font-size:12px" placeholder="Paste your resume text here...&#10;&#10;Include:&#10;- Contact info&#10;- Education&#10;- Skills&#10;- Experience&#10;- Projects&#10;- Achievements"></textarea>
+        <div style="margin-top:12px;display:flex;gap:10px">
+          <button class="btn btn-primary btn-block" onclick="analyzeResume()" id="analyzeBtn">
+            <i class="fas fa-magic"></i> Analyze with AI
+          </button>
+          <button class="btn btn-ghost" onclick="document.getElementById('resumeText').value=''">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <i class="fas fa-shield-alt"></i>
+        <div><strong>Privacy:</strong> Your resume data is only used for analysis and not stored permanently.</div>
+      </div>
+    </div>
+    
+    <!-- Results -->
+    <div id="resultsPanel">
+      <div class="card" style="text-align:center;padding:40px;color:var(--text3)">
+        <div style="font-size:48px;margin-bottom:16px">🔍</div>
+        <div>Paste your resume and click "Analyze" to get AI feedback</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function analyzeResume() {
+  const text = document.getElementById('resumeText').value.trim();
+  if(!text || text.length < 50) { showToast('Please paste your resume content first', 'warning'); return; }
+  
+  const btn = document.getElementById('analyzeBtn');
+  btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  btn.disabled = true;
+  
+  document.getElementById('resultsPanel').innerHTML = '<div class="card" style="text-align:center;padding:40px"><span class="spinner" style="width:32px;height:32px;border-width:3px"></span><div style="color:var(--text2);margin-top:16px">AI is analyzing your resume...</div></div>';
+  
+  const data = await apiFetch('/api/analyze_resume', {text});
+  
+  if(data.error) {
+    document.getElementById('resultsPanel').innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+    btn.innerHTML = '<i class="fas fa-magic"></i> Analyze with AI';
+    btn.disabled = false;
+    return;
+  }
+  
+  const scoreColor = data.overall_score >= 70 ? 'var(--green)' : data.overall_score >= 50 ? 'var(--yellow)' : 'var(--red)';
+  
+  document.getElementById('resultsPanel').innerHTML = `
+    <div class="card mb-16">
+      <div class="flex-between mb-16">
+        <div class="card-title">Resume Score</div>
+        <div style="font-size:36px;font-weight:700;font-family:var(--mono);color:${scoreColor}">${data.overall_score || 0}/100</div>
+      </div>
+      <div class="progress-bar" style="height:10px;border-radius:5px">
+        <div class="progress-fill" style="width:${data.overall_score||0}%;background:${scoreColor}"></div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text3)">ATS Score: <span style="color:var(--cyan)">${data.ats_score||0}/100</span></div>
+    </div>
+    
+    ${data.strengths ? `
+    <div class="card mb-16" style="border-color:rgba(16,185,129,0.3)">
+      <div style="font-size:12px;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">✅ Strengths</div>
+      ${data.strengths.map(s=>`<div style="font-size:13px;color:var(--text2);margin-bottom:4px">• ${s}</div>`).join('')}
+    </div>` : ''}
+    
+    ${data.improvements ? `
+    <div class="card mb-16" style="border-color:rgba(245,158,11,0.3)">
+      <div style="font-size:12px;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📈 Improvements</div>
+      ${data.improvements.map(s=>`<div style="font-size:13px;color:var(--text2);margin-bottom:4px">• ${s}</div>`).join('')}
+    </div>` : ''}
+    
+    ${data.keywords_missing ? `
+    <div class="card mb-16">
+      <div style="font-size:12px;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🔑 Missing Keywords</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${data.keywords_missing.map(k=>`<span class="badge badge-red">${k}</span>`).join('')}
+      </div>
+    </div>` : ''}
+    
+    ${data.action_items ? `
+    <div class="card">
+      <div style="font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">✅ Action Items</div>
+      ${data.action_items.map((a,i)=>`<div style="font-size:13px;color:var(--text2);margin-bottom:6px;display:flex;gap:8px"><span style="color:var(--accent)">${i+1}.</span>${a}</div>`).join('')}
+    </div>` : ''}
+  `;
+  
+  btn.innerHTML = '<i class="fas fa-magic"></i> Analyze with AI';
+  btn.disabled = false;
+}
+</script>
+{% endblock %}
