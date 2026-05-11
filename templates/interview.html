@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Interview - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>Interview Practice</h1>
+    <p>Generate interview questions from the browser using the AI endpoints.</p>
+    <form id="interviewForm" class="form-card">
+        <label>Role</label>
+        <input id="role" value="Software Engineer">
+        <button class="btn btn-primary" type="submit">Generate Questions</button>
+    </form>
+    <div id="questions" class="content-box" style="display:none"></div>
+</section>
+<script>
+document.getElementById('interviewForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const box = document.getElementById('questions');
+    box.style.display = 'block';
+    box.textContent = 'Thinking...';
+    const res = await fetch('{{ url_for("generate_interview_questions") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({role: document.getElementById('role').value, type: 'technical'})
+    });
+    const data = await res.json();
+    box.innerHTML = '<ol>' + (data.questions || []).map(q => `<li>${q}</li>`).join('') + '</ol>';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Mock Test - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>Mock Test</h1>
+    <p>Use the quiz, coding, and interview sections together for a full placement practice session.</p>
+    <div class="action-buttons">
+        <a class="btn btn-primary" href="{{ url_for('quiz') }}">Start Quiz</a>
+        <a class="btn btn-secondary" href="{{ url_for('coding') }}">Practice Coding</a>
+    </div>
+</section>
+{% endblock %}

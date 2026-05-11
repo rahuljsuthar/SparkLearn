@@ -1,10 +1,12 @@
 services:
   - type: web
     name: ai-tutor-app
-    runtime: python3
-    source: git
-    buildCommand: pip install -r requirements.txt
+    runtime: python
+    plan: free
+    buildCommand: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
+      - key: SECRET_KEY
+        generateValue: true
       - key: GEMINI_API_KEY
-        sync: false  # Set this manually in Render dashboard
+        sync: false

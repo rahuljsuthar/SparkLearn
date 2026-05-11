@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Study - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>Study Topics</h1>
+    <div class="topics-grid">
+        {% for topic in topics %}
+        <a class="topic-card" href="{{ url_for('study_topic', topic_id=topic.id) }}">
+            <h3>{{ topic.name }}</h3>
+            <p>Open notes and ask doubts for {{ topic.name }}.</p>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

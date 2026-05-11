@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ problem.title }} - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>{{ problem.title }}</h1>
+    <p>{{ problem.description }}</p>
+    <pre class="content-box">{{ problem.starter_code.python }}</pre>
+    <a class="btn btn-secondary" href="{{ url_for('coding') }}">Back</a>
+</section>
+{% endblock %}

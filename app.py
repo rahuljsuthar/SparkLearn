@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
+app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'sparklearn_secret_2024')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
@@ -32,10 +32,10 @@ def _load_gemini():
             import google.generativeai as genai
             genai.configure(api_key=GEMINI_API_KEY)
             _gemini_model = genai.GenerativeModel('gemini-2.5-flash-lite')
-            print("✅ Gemini loaded")
+            print("Gemini loaded")
             return _gemini_model
         except Exception as e:
-            print(f"⚠️  Gemini: {e}")
+            print(f"Gemini: {e}")
     return None
 
 def _ollama_available():
@@ -94,7 +94,7 @@ def _build_vectors():
     try:
         from sklearn.feature_extraction.text import TfidfVectorizer
     except ImportError:
-        print("⚠️  scikit-learn missing — pip install scikit-learn")
+        print("scikit-learn missing - pip install scikit-learn")
         return
     for topic in TOPICS:
         try:
@@ -109,7 +109,7 @@ def _build_vectors():
         vec    = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
         matrix = vec.fit_transform(chunks)
         _vector_store[topic['id']] = {'chunks': chunks, 'matrix': matrix, 'vectorizer': vec}
-    print(f"✅ Vectors built for {len(_vector_store)} topics")
+    print(f"Vectors built for {len(_vector_store)} topics")
 
 def vector_search(query, topic_id=None, top_k=2):
     try:
@@ -210,9 +210,9 @@ try:
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     eye_cascade  = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
     if face_cascade.empty(): face_cascade = None
-    else: print("✅ Face detection loaded")
+    else: print("Face detection loaded")
 except Exception as e:
-    print(f"⚠️  OpenCV: {e}")
+    print(f"OpenCV: {e}")
 
 # ── Routes: Core ──────────────────────────────────────────────────────────────
 @app.route('/')
@@ -243,6 +243,30 @@ def study():
     init_session()
     return render_template('study.html', user=get_session_user(), topics=TOPICS,
         app_name=APP_NAME, active_page='study')
+
+@app.route('/subjects')
+def subjects():
+    return redirect(url_for('study'))
+
+@app.route('/doubt', methods=['GET', 'POST'])
+def doubt():
+    init_session()
+    answer = None
+    question = ''
+    if request.method == 'POST':
+        question = request.form.get('question', '').strip()
+        if question:
+            answer = ai_generate(
+                f"Answer this placement preparation doubt in 50-80 words: {question}",
+                max_tokens=150
+            )
+    return render_template('doubt.html', user=get_session_user(), answer=answer,
+        question=question, app_name=APP_NAME, active_page='doubt')
+
+@app.route('/quit')
+def quit():
+    session.clear()
+    return render_template('end.html', app_name=APP_NAME)
 
 @app.route('/study/<topic_id>')
 def study_topic(topic_id):
@@ -575,8 +599,8 @@ def ai_status():
 if __name__ == '__main__':
     _build_vectors()
     port=int(os.getenv('PORT',5000))
-    print(f"\n🔥 {APP_FULL_NAME}  →  http://localhost:{port}")
-    print(f"   Ollama : {'✅ '+OLLAMA_MODEL if _ollama_available() else '⚠️  not running (ollama serve)'}")
-    print(f"   Gemini : {'✅ ready' if GEMINI_API_KEY else '⚠️  no key'}")
-    print(f"   OpenCV : {'✅' if face_cascade else '⚠️  unavailable'}\n")
+    print(f"\n{APP_FULL_NAME} -> http://localhost:{port}")
+    print(f"   Ollama : {OLLAMA_MODEL if _ollama_available() else 'not running (ollama serve)'}")
+    print(f"   Gemini : {'ready' if GEMINI_API_KEY else 'no key'}")
+    print(f"   OpenCV : {'ready' if face_cascade else 'unavailable'}\n")
     app.run(host='0.0.0.0', port=port, debug=False)

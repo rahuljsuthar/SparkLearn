@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Company Prep - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>Company Prep</h1>
+    <form id="companyForm" class="form-card">
+        <label>Company</label>
+        <input id="company" placeholder="Google">
+        <label>Role</label>
+        <input id="role" value="SWE">
+        <button class="btn btn-primary" type="submit">Create Guide</button>
+    </form>
+    <pre id="companyResult" class="content-box" style="display:none"></pre>
+</section>
+<script>
+document.getElementById('companyForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const result = document.getElementById('companyResult');
+    result.style.display = 'block';
+    result.textContent = 'Thinking...';
+    const res = await fetch('{{ url_for("company_prep") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({company: document.getElementById('company').value, role: document.getElementById('role').value})
+    });
+    result.textContent = JSON.stringify(await res.json(), null, 2);
+});
+</script>
+{% endblock %}

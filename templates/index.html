@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>SparkLearn</h1>
+    <p>AI placement preparation for study, quiz practice, coding, interviews, resumes, and company prep.</p>
+    <div class="action-buttons">
+        <a class="btn btn-primary" href="{{ url_for('setup') }}">Start</a>
+        <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Dashboard</a>
+    </div>
+</section>
+{% endblock %}

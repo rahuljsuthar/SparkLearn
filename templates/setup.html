@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Setup - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>Set up your profile</h1>
+    <form method="POST" class="form-card">
+        <label>Name</label>
+        <input name="name" placeholder="Student" autocomplete="name">
+        <label>Email</label>
+        <input name="email" type="email" placeholder="you@example.com" autocomplete="email">
+        <button class="btn btn-primary" type="submit">Continue</button>
+    </form>
+</section>
+{% endblock %}

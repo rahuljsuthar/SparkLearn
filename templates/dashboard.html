@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>Welcome, {{ user.name }}</h1>
+    <div class="topics-grid">
+        <a class="topic-card" href="{{ url_for('study') }}"><h3>Study</h3><p>{{ topics|length }} CS topics</p></a>
+        <a class="topic-card" href="{{ url_for('quiz') }}"><h3>Quiz</h3><p>Generate MCQs with AI</p></a>
+        <a class="topic-card" href="{{ url_for('coding') }}"><h3>Coding</h3><p>Practice interview problems</p></a>
+        <a class="topic-card" href="{{ url_for('interview') }}"><h3>Interview</h3><p>Practice HR and technical rounds</p></a>
+        <a class="topic-card" href="{{ url_for('resume') }}"><h3>Resume</h3><p>Get resume feedback</p></a>
+        <a class="topic-card" href="{{ url_for('companies') }}"><h3>Company Prep</h3><p>Plan for target companies</p></a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.name }} - SparkLearn{% endblock %}
+
+{% block content %}
+<section class="container">
+    <h1>{{ topic.name }}</h1>
+    <pre class="content-box">{{ content }}</pre>
+    <form id="doubtForm" class="form-card">
+        <label>Ask a doubt about this topic</label>
+        <textarea id="question" rows="3" placeholder="Type your question"></textarea>
+        <button class="btn btn-primary" type="submit">Ask</button>
+    </form>
+    <div id="answer" class="content-box" style="display:none"></div>
+</section>
+<script>
+document.getElementById('doubtForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const answer = document.getElementById('answer');
+    answer.style.display = 'block';
+    answer.textContent = 'Thinking...';
+    const res = await fetch('{{ url_for("ask_doubt") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: document.getElementById('question').value, topic_id: '{{ topic.id }}', topic: '{{ topic.name }}'})
+    });
+    const data = await res.json();
+    answer.textContent = data.answer || data.error || 'No answer available.';
+});
+</script>
+{% endblock %}

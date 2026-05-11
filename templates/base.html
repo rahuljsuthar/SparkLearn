@@ -88,8 +88,8 @@
     <nav>
         <div class="logo">SparkLearn</div>
         <ul>
-            <li><a href="{{ url_for('dashboard') }}" class="{% if active_page == 'home' %}active{% endif %}">Home</a></li>
-            <li><a href="{{ url_for('subjects') }}" class="{% if active_page == 'subjects' %}active{% endif %}">Subjects</a></li>
+            <li><a href="{{ url_for('dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}">Home</a></li>
+            <li><a href="{{ url_for('study') }}" class="{% if active_page == 'study' %}active{% endif %}">Study</a></li>
             <li><a href="{{ url_for('quiz') }}" class="{% if active_page == 'quiz' %}active{% endif %}">Quiz</a></li>
             <li><a href="{{ url_for('doubt') }}" class="{% if active_page == 'doubt' %}active{% endif %}">Doubt Section</a></li>
             <li><a href="{{ url_for('performance') }}" class="{% if active_page == 'performance' %}active{% endif %}">Progress</a></li>
@@ -133,7 +133,7 @@
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
                     const imageData = canvas.toDataURL('image/jpeg');
 
-                    fetch('{{ url_for("detect_presence") }}', {
+                    fetch('{{ url_for("detect_face") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -142,7 +142,7 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.alert) {
+                        if (data.warning) {
                             presenceAlert.style.display = 'block';
                         } else {
                             presenceAlert.style.display = 'none';
