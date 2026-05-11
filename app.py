@@ -17,7 +17,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 APP_NAME      = "SparkLearn"
 APP_FULL_NAME = "SparkLearn: Ignite Your Learning"
 
-# ── AI: Ollama (primary) → Gemini (fallback) ──────────────────────────────────
+#  AI: Ollama (primary) → Gemini (fallback) 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 OLLAMA_HOST    = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
 OLLAMA_MODEL   = os.getenv('OLLAMA_MODEL', 'qwen2:0.5b')
@@ -87,7 +87,7 @@ def ai_json(prompt, max_tokens=600):
             except: pass
     return None
 
-# ── TF-IDF Vector Search ───────────────────────────────────────────────────────
+#  TF-IDF Vector Search 
 _vector_store = {}
 
 def _build_vectors():
@@ -130,7 +130,7 @@ def vector_search(query, topic_id=None, top_k=2):
     results.sort(key=lambda x: -x[0])
     return "\n\n".join(c for _, c in results[:top_k])
 
-# ── Topic & Problem Data ───────────────────────────────────────────────────────
+#  Topic & Problem Data 
 TOPICS = [
     {"id": "dbms",     "name": "DBMS",    "icon": "🗄️", "file": "content/dbms.txt",             "color": "#6366f1"},
     {"id": "sql",      "name": "SQL",      "icon": "📊", "file": "content/sql.txt",              "color": "#8b5cf6"},
@@ -190,7 +190,7 @@ CODING_PROBLEMS = [
      "test_cases":[{"input":"[-2,1,-3,4,-1,2,1,-5,4]","expected":"6"}]},
 ]
 
-# ── Session helpers ────────────────────────────────────────────────────────────
+#  Session helpers 
 def get_session_user():
     return session.get('user', {'name': 'Student', 'email': '', 'avatar': '👤'})
 
@@ -203,7 +203,7 @@ def init_session():
         'start_time': datetime.now().isoformat()
     })
 
-# ── OpenCV ─────────────────────────────────────────────────────────────────────
+#  OpenCV 
 face_cascade = eye_cascade = None
 try:
     import cv2, numpy as np
@@ -214,7 +214,7 @@ try:
 except Exception as e:
     print(f"OpenCV: {e}")
 
-# ── Routes: Core ──────────────────────────────────────────────────────────────
+#  Routes: Core 
 @app.route('/')
 def index():
     init_session()
@@ -237,7 +237,7 @@ def dashboard():
         stats=session.get('stats',{}), topics=TOPICS,
         app_name=APP_NAME, active_page='dashboard')
 
-# ── Study ─────────────────────────────────────────────────────────────────────
+#  Study 
 @app.route('/study')
 def study():
     init_session()
@@ -283,7 +283,7 @@ def study_topic(topic_id):
     return render_template('study_topic.html', user=get_session_user(), topic=topic,
         content=content, topics=TOPICS, app_name=APP_NAME, active_page='study')
 
-# ── API: Doubt (50-100 word limit, vector-augmented) ──────────────────────────
+#  API: Doubt (50-100 word limit, vector-augmented) 
 @app.route('/api/ask_doubt', methods=['POST'])
 def ask_doubt():
     data     = request.get_json()
@@ -297,7 +297,7 @@ def ask_doubt():
               f"Q:{question}\nAnswer in 50-80 words max. Be direct, include one example.")
     return jsonify({'answer': ai_generate(prompt, max_tokens=150)})
 
-# ── Quiz ──────────────────────────────────────────────────────────────────────
+#  Quiz 
 @app.route('/quiz')
 def quiz():
     init_session()
@@ -332,7 +332,7 @@ def save_quiz_score():
     session['stats'] = stats
     return jsonify({'saved': True})
 
-# ── Interview: generate 5 resume-based questions ──────────────────────────────
+#  Interview: generate 5 resume-based questions 
 @app.route('/api/generate_interview_questions', methods=['POST'])
 def generate_interview_questions():
     data    = request.get_json()
@@ -373,7 +373,7 @@ def generate_interview_questions():
         return jsonify({'questions': qs})
     return jsonify({'questions': fb})
 
-# ── Interview: evaluate one answer ────────────────────────────────────────────
+#  Interview: evaluate one answer 
 @app.route('/api/evaluate_answer', methods=['POST'])
 def evaluate_answer():
     data     = request.get_json()
@@ -393,7 +393,7 @@ def evaluate_answer():
         return jsonify(result)
     return jsonify({'score':5,'overall':'Average','strengths':['Attempted'],'improvements':['More detail'],'ideal_answer_hint':''})
 
-# ── Interview: final session scoring ─────────────────────────────────────────
+#  Interview: final session scoring 
 @app.route('/api/score_interview_session', methods=['POST'])
 def score_interview_session():
     data    = request.get_json()
@@ -419,7 +419,7 @@ def score_interview_session():
                     'study_topics':['Communication','Technical depth'],
                     'motivational_note':'Keep going — every session makes you sharper!'})
 
-# ── Face Detection ────────────────────────────────────────────────────────────
+#  Face Detection 
 @app.route('/api/detect_face', methods=['POST'])
 def detect_face():
     try:
@@ -454,7 +454,7 @@ def reset_warnings():
     s = session.get('stats',{}); s['warnings']=0; session['stats']=s
     return jsonify({'reset':True})
 
-# ── Coding ────────────────────────────────────────────────────────────────────
+#  Coding 
 @app.route('/coding')
 def coding():
     init_session()
@@ -510,7 +510,7 @@ def mark_solved():
     session['stats']=s
     return jsonify({'saved':True})
 
-# ── Performance ───────────────────────────────────────────────────────────────
+#  Performance 
 @app.route('/performance')
 def performance():
     init_session()
@@ -531,14 +531,14 @@ def get_ai_feedback():
     r=ai_json(prompt, max_tokens=280)
     return jsonify(r if isinstance(r,dict) else {'overall_readiness':'50%','motivational_message':'Keep going!'})
 
-# ── Interview page ────────────────────────────────────────────────────────────
+#  Interview page 
 @app.route('/interview')
 def interview():
     init_session()
     return render_template('interview.html', user=get_session_user(),
         app_name=APP_NAME, active_page='interview')
 
-# ── Mock / Resume / Companies ─────────────────────────────────────────────────
+#  Mock / Resume / Companies 
 @app.route('/mock_test')
 def mock_test():
     init_session()
@@ -578,7 +578,7 @@ def company_prep():
     r=ai_json(prompt, max_tokens=350)
     return jsonify(r if isinstance(r,dict) else {'company':company,'tips':['Check AI connection']})
 
-# ── Utility ───────────────────────────────────────────────────────────────────
+#  Utility 
 @app.route('/api/stats')
 def get_stats(): return jsonify(session.get('stats',{}))
 
@@ -595,7 +595,7 @@ def ai_status():
                     'gemini':bool(GEMINI_API_KEY),
                     'active':'ollama' if ol else ('gemini' if GEMINI_API_KEY else 'none')})
 
-# ── Boot ──────────────────────────────────────────────────────────────────────
+#  Boot 
 if __name__ == '__main__':
     _build_vectors()
     port=int(os.getenv('PORT',5000))

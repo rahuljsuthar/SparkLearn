@@ -1,10 +1,10 @@
-# 🎯 PlacementAI — AI Placement Preparation System
+# 🎯 SparkLearn: Ignite Your Learning
 
 A complete, local-first AI-powered placement preparation platform. Runs fully on CPU.
 
 ---
 
-## 🚀 Features
+##  Features
 
 | Feature | Description |
 |---|---|
@@ -69,33 +69,33 @@ http://localhost:5000
 
 ```
 placement_system/
-├── app.py                    # Main Flask application
-├── run.py                    # Quick-start script
-├── requirements.txt
-├── .env.example
-├── content/                  # Study material text files
-│   ├── dbms.txt
-│   ├── sql.txt
-│   ├── dsa.txt
-│   ├── oops.txt
-│   ├── cn.txt
-│   ├── os.txt
-│   ├── aptitude.txt
-│   └── coding_questions.txt
-└── frontend/
-    ├── templates/
-    │   ├── base.html         # Shared layout + dark design system
-    │   ├── setup.html        # Onboarding page
-    │   ├── dashboard.html    # Main dashboard
-    │   ├── interview.html    # AI Interview + proctoring
-    │   ├── quiz.html         # AI Quiz generator
-    │   ├── coding_editor.html# Coding lab + editor
-    │   ├── study.html        # Study material viewer
-    │   ├── performance.html  # Analytics dashboard
-    │   ├── resume.html       # Resume analyzer
-    │   ├── companies.html    # Company prep guides
-    │   └── mock_test.html    # Mock test hub
-    └── static/               # CSS, JS, assets
+├ app.py                    # Main Flask application
+├ run.py                    # Quick-start script
+├ requirements.txt
+├ .env.example
+├ content/                  # Study material text files
+│   ├ dbms.txt
+│   ├ sql.txt
+│   ├ dsa.txt
+│   ├ oops.txt
+│   ├ cn.txt
+│   ├ os.txt
+│   ├ aptitude.txt
+│   └ coding_questions.txt
+└ frontend/
+    ├ templates/
+    │   ├ base.html         # Shared layout + dark design system
+    │   ├ setup.html        # Onboarding page
+    │   ├ dashboard.html    # Main dashboard
+    │   ├ interview.html    # AI Interview + proctoring
+    │   ├ quiz.html         # AI Quiz generator
+    │   ├ coding_editor.html# Coding lab + editor
+    │   ├ study.html        # Study material viewer
+    │   ├ performance.html  # Analytics dashboard
+    │   ├ resume.html       # Resume analyzer
+    │   ├ companies.html    # Company prep guides
+    │   └ mock_test.html    # Mock test hub
+    └ static/               # CSS, JS, assets
 ```
 
 ---
@@ -126,14 +126,14 @@ Browser (HTML/CSS/JS)
      ▼
 Flask App (app.py)
      │
-     ├── OpenCV (face/eye detection)  ← CPU only, local
-     ├── Web Speech API               ← Browser-native STT
-     └── Google Gemini API            ← AI features (cloud)
-          ├── Quiz generation
-          ├── Answer evaluation
-          ├── Code review/hints
-          ├── Resume analysis
-          └── Company prep guides
+     ├ OpenCV (face/eye detection)  ← CPU only, local
+     ├ Web Speech API               ← Browser-native STT
+     └ Google Gemini API            ← AI features (cloud)
+          ├ Quiz generation
+          ├ Answer evaluation
+          ├ Code review/hints
+          ├ Resume analysis
+          └ Company prep guides
 ```
 
 ---
@@ -152,7 +152,7 @@ The free tier is sufficient for all features in this system.
 
 ---
 
-## ⚠️ Troubleshooting
+##  Troubleshooting
 
 **Camera not working?**
 - Allow camera/microphone permissions in browser
