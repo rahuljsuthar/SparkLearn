@@ -1,4 +1,4 @@
-# 🎯 PlacementAI — AI Placement Preparation System
+# 🎯 SparkLearn — Ignite Your Leanrning
 
 A complete, local-first AI-powered placement preparation platform. Runs fully on CPU.
 
