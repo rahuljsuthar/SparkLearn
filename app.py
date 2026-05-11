@@ -31,7 +31,7 @@ def _load_gemini():
         try:
             import google.generativeai as genai
             genai.configure(api_key=GEMINI_API_KEY)
-            _gemini_model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            _gemini_model = genai.GenerativeModel('gemini-1.5-flash-lite')
             print("Gemini loaded")
             return _gemini_model
         except Exception as e:
@@ -303,23 +303,62 @@ def quiz():
     init_session()
     return render_template('quiz.html', user=get_session_user(), topics=TOPICS,
         app_name=APP_NAME, active_page='quiz')
-
 @app.route('/api/generate_quiz', methods=['POST'])
 def generate_quiz_api():
-    data       = request.get_json()
-    topic_name = data.get('topic','General CS')
-    count      = min(int(data.get('count',10)), 20)
-    difficulty = data.get('difficulty','mixed')
-    topic_id   = data.get('topic_id')
-    ctx = vector_search(topic_name, topic_id=topic_id, top_k=2)
-    ctx_note = f"\nBased on:\n{ctx[:400]}\n" if ctx else ""
-    prompt = (f"Generate {count} MCQ on '{topic_name}', difficulty:{difficulty}.{ctx_note}\n"
-              f"JSON array only:\n"
-              f'[{{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}}]')
-    result = ai_json(prompt, max_tokens=900)
-    if isinstance(result, list) and result:
-        return jsonify({'questions': result[:count]})
-    return jsonify({'error': 'Quiz generation failed'}), 500
+    try:
+        data = request.get_json()
+
+        topic_name = data.get('topic', 'General CS')
+        count = min(int(data.get('count', 10)), 20)
+        difficulty = data.get('difficulty', 'mixed')
+        topic_id = data.get('topic_id')
+
+        ctx = vector_search(topic_name, topic_id=topic_id, top_k=2)
+
+        ctx_note = f"\nBased on:\n{ctx[:400]}\n" if ctx else ""
+
+        prompt = f"""
+Generate {count} multiple-choice questions on "{topic_name}".
+Difficulty: {difficulty}
+
+{ctx_note}
+
+Return ONLY valid JSON.
+
+Format:
+[
+  {{
+    "question": "...",
+    "options": ["A","B","C","D"],
+    "correct": 0,
+    "explanation": "..."
+  }}
+]
+"""
+
+        result = ai_json(prompt, max_tokens=900)
+
+        print("QUIZ RESULT:", result)
+
+        if isinstance(result, list) and len(result) > 0:
+            return jsonify({
+                'questions': result[:count]
+            })
+
+        return jsonify({
+            'error': 'Invalid AI response',
+            'raw': str(result)
+        }), 500
+
+    except Exception as e:
+        import traceback
+
+        print("QUIZ API ERROR:", str(e))
+        traceback.print_exc()
+
+        return jsonify({
+            'error': str(e)
+        }), 500
 
 @app.route('/api/save_quiz_score', methods=['POST'])
 def save_quiz_score():
