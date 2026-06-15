@@ -31,27 +31,17 @@
 
 <div class="grid-2 mb-24">
   <!-- Topic Progress -->
+  <!-- Topic Competency Radar -->
   <div class="card">
     <div class="card-header">
-      <div class="card-title">Topic Progress</div>
-    </div>
-    {% for topic in topics %}
-    {% set done = topic.id in (stats.topics_completed or []) %}
-    <div style="margin-bottom:14px">
-      <div class="flex-between mb-6">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span>{{ topic.icon }}</span>
-          <span style="font-size:13px;font-weight:600">{{ topic.name }}</span>
-        </div>
-        <span class="badge {% if done %}badge-green{% else %}badge-blue{% endif %}">
-          {% if done %}Done{% else %}Pending{% endif %}
-        </span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:{{ '100' if done else '0' }}%;background:{% if done %}var(--green){% else %}rgba(255,255,255,0.1){% endif %}"></div>
+      <div>
+        <div class="card-title">Competency Radar</div>
+        <div class="card-sub">AI-evaluated skill matrix</div>
       </div>
     </div>
-    {% endfor %}
+    <div style="height: 280px; position: relative;">
+      <canvas id="competencyRadarChart"></canvas>
+    </div>
   </div>
   
   <!-- Quiz History -->
@@ -141,5 +131,73 @@ async function loadFeedback() {
   
   document.getElementById('feedbackArea').innerHTML = html;
 }
+
+// Radar Chart Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  const topics = {{ topics | tojson }};
+  const stats = {{ stats | tojson }};
+  const quizScores = stats.quiz_scores || [];
+  
+  // Aggregate average quiz score per topic
+  const topicScores = {};
+  topics.forEach(t => {
+    topicScores[t.name] = [];
+  });
+  
+  quizScores.forEach(qs => {
+    const topicName = qs.topic || 'Mixed CS';
+    const pct = Math.round((qs.score / qs.total) * 100);
+    if (topicScores[topicName]) {
+      topicScores[topicName].push(pct);
+    } else {
+      topicScores[topicName] = [pct];
+    }
+  });
+  
+  const labels = topics.map(t => t.name);
+  const data = topics.map(t => {
+    const scores = topicScores[t.name] || [];
+    if (scores.length === 0) {
+      const done = stats.topics_completed && stats.topics_completed.includes(t.id);
+      return done ? 65 : 15;
+    }
+    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  });
+
+  const ctxRadar = document.getElementById('competencyRadarChart').getContext('2d');
+  new Chart(ctxRadar, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Placement Competency',
+        data: data,
+        borderColor: '#7c3aed',
+        backgroundColor: 'rgba(124, 58, 237, 0.08)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#7c3aed',
+        pointBorderColor: '#ffffff',
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        r: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          angleLines: { color: 'rgba(0,0,0,0.05)' },
+          pointLabels: { color: '#334155', font: { family: 'Space Grotesk', size: 10, weight: '600' } },
+          ticks: { display: false, maxTicksLimit: 5 },
+          suggestedMin: 0,
+          suggestedMax: 100
+        }
+      }
+    }
+  });
+});
 </script>
 {% endblock %}

@@ -29,6 +29,7 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 OLLAMA_HOST    = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
 OLLAMA_MODEL   = os.getenv('OLLAMA_MODEL', 'qwen2:0.5b')
 _gemini_model  = None
+_last_ai_error = None
 
 def _load_gemini():
     global _gemini_model
@@ -64,19 +65,25 @@ def _ollama_generate(prompt, max_tokens=300):
     return _j.loads(resp.read()).get("response", "")
 
 def _generate_with_ollama(prompt, max_tokens=300):
+    global _last_ai_error
     if not _ollama_available():
+        _last_ai_error = "Ollama service is not running locally."
         return None
     try:
         r = _ollama_generate(prompt, max_tokens)
         if r.strip():
+            _last_ai_error = None
             return r.strip()
     except Exception as e:
+        _last_ai_error = str(e)
         print(f"  Ollama err: {e}")
     return None
 
 def _generate_with_gemini(prompt, max_tokens=300):
+    global _last_ai_error
     m = _load_gemini()
     if not m:
+        _last_ai_error = "Gemini key is missing or configuring failed."
         return None
     try:
         import google.generativeai as genai
@@ -85,32 +92,85 @@ def _generate_with_gemini(prompt, max_tokens=300):
             generation_config=genai.types.GenerationConfig(
                 max_output_tokens=max_tokens, temperature=0.7))
         if resp.text.strip():
+            _last_ai_error = None
             return resp.text.strip()
     except Exception as e:
+        _last_ai_error = str(e)
         print(f"  Gemini err: {e}")
     return None
 
 def ai_generate(prompt, max_tokens=300):
-    # Prefer the configured cloud model, but keep the app useful without keys.
+    global _last_ai_error
+    gemini_err = None
+    ollama_err = None
+    
+    # 1. Try Gemini
     if GEMINI_API_KEY:
         r = _generate_with_gemini(prompt, max_tokens)
         if r:
+            _last_ai_error = None
             return r
+        gemini_err = _last_ai_error
+    else:
+        gemini_err = "No Gemini API key is configured in your environment."
 
+    # 2. Try Ollama fallback
     r = _generate_with_ollama(prompt, max_tokens)
     if r:
+        _last_ai_error = None
         return r
+    ollama_err = _last_ai_error
 
-    return "AI unavailable. Add GEMINI_API_KEY to .env or run `ollama serve` with the local model pulled."
+    # 3. Both failed: construct a rich detailed error
+    detailed = []
+    
+    # Analyze Gemini error
+    if gemini_err:
+        gemini_err_str = str(gemini_err)
+        lower_g = gemini_err_str.lower()
+        if "quota" in lower_g or "exhausted" in lower_g or "429" in lower_g or "limit" in lower_g:
+            detailed.append("Gemini Quota/Limit Exhausted (Rate limit or daily limit hit. Check your billing/usage limits).")
+        elif "api_key" in lower_g or "api key" in lower_g or "invalid" in lower_g or "key not found" in lower_g:
+            detailed.append("Gemini API Key is invalid or expired. Check your .env file.")
+        else:
+            detailed.append(f"Gemini API Error: {gemini_err_str}")
+            
+    # Analyze Ollama error
+    if ollama_err:
+        ollama_err_str = str(ollama_err)
+        lower_o = ollama_err_str.lower()
+        if "not running" in lower_o or "refused" in lower_o or "failed" in lower_o:
+            detailed.append("Ollama service is not running locally (could not connect to http://localhost:11434).")
+        else:
+            detailed.append(f"Ollama local error: {ollama_err_str}")
+            
+    _last_ai_error = " & ".join(detailed)
+    return None
 
 def ai_json(prompt, max_tokens=600):
+    global _last_ai_error
     raw = ai_generate(prompt, max_tokens)
-    raw = re.sub(r'```(?:json)?\s*', '', raw).strip().rstrip('`')
-    for pat in [r'\[.*\]', r'\{.*\}']:
-        m = re.search(pat, raw, re.DOTALL)
+    if not raw:
+        return None
+    cleaned = re.sub(r'```(?:json)?\s*', '', raw).strip().rstrip('`').strip()
+    try:
+        return json.loads(cleaned)
+    except:
+        pass
+    
+    first_bracket = cleaned.find('[')
+    first_brace = cleaned.find('{')
+    patterns = [r'\{.*\}', r'\[.*\]']
+    if first_bracket != -1 and (first_brace == -1 or first_bracket < first_brace):
+        patterns = [r'\[.*\]', r'\{.*\}']
+        
+    for pat in patterns:
+        m = re.search(pat, cleaned, re.DOTALL)
         if m:
             try: return json.loads(m.group())
             except: pass
+            
+    _last_ai_error = "AI responded but output could not be parsed as valid JSON."
     return None
 
 # ── TF-IDF Vector Search ───────────────────────────────────────────────────────
@@ -287,6 +347,12 @@ def study_topic(topic_id):
     return render_template('study_topic.html', user=get_session_user(), topic=topic,
         content=content, topics=TOPICS, app_name=APP_NAME, active_page='study')
 
+# ── Logo Serving ──────────────────────────────────────────────────────────────
+@app.route('/LOGO/<path:filename>')
+def serve_logo(filename):
+    from flask import send_from_directory
+    return send_from_directory('LOGO', filename)
+
 # ── API: Doubt (50-100 word limit, vector-augmented) ──────────────────────────
 @app.route('/api/ask_doubt', methods=['POST'])
 def ask_doubt():
@@ -320,10 +386,18 @@ def generate_quiz_api():
     prompt = (f"Generate {count} MCQ on '{topic_name}', difficulty:{difficulty}.{ctx_note}\n"
               f"JSON array only:\n"
               f'[{{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}}]')
-    result = ai_json(prompt, max_tokens=900)
+    result = ai_json(prompt, max_tokens=3000)
+    if isinstance(result, dict):
+        for key, val in result.items():
+            if isinstance(val, list) and val:
+                result = val
+                break
     if isinstance(result, list) and result:
         return jsonify({'questions': result[:count]})
-    return jsonify({'error': 'Quiz generation failed'}), 500
+    err = 'Quiz generation failed.'
+    if _last_ai_error:
+        err += f" Details: {_last_ai_error}"
+    return jsonify({'error': err}), 500
 
 @app.route('/api/save_quiz_score', methods=['POST'])
 def save_quiz_score():
@@ -352,7 +426,7 @@ def generate_interview_questions():
     instr = type_map.get(itype, type_map['hr'])
     prompt = (f"Create exactly 5 {instr} interview questions for {role}.{rb}\n"
               f'Return JSON array of 5 strings ONLY: ["Q1?","Q2?","Q3?","Q4?","Q5?"]')
-    result = ai_json(prompt, max_tokens=350)
+    result = ai_json(prompt, max_tokens=600)
     fallbacks = {
         'hr':           ["Tell me about yourself.",
                          "Describe a challenge you overcame.",
@@ -390,7 +464,7 @@ def evaluate_answer():
     prompt = (f"Evaluate {qtype.upper()} answer (50-word max).\nQ:{question}\nA:{answer}\n"
               f'JSON:{{"score":0-10,"overall":"Excellent/Good/Average/Poor",'
               f'"strengths":["..."],"improvements":["..."],"ideal_answer_hint":"..."}}')
-    result = ai_json(prompt, max_tokens=200)
+    result = ai_json(prompt, max_tokens=500)
     if isinstance(result, dict):
         stats = session.get('stats',{}); stats['interview_sessions'] = stats.get('interview_sessions',0)+1
         session['stats'] = stats
@@ -414,7 +488,7 @@ def score_interview_session():
               f'{{"overall_score":{avg:.1f},"readiness":"Ready/Almost/Needs Work",'
               f'"top_strength":"...","key_improvement":"...","study_topics":["t1","t2"],'
               f'"motivational_note":"..."}}')
-    result = ai_json(prompt, max_tokens=250)
+    result = ai_json(prompt, max_tokens=500)
     if isinstance(result, dict):
         result['overall_score'] = round(avg, 1)
         return jsonify(result)
@@ -484,7 +558,7 @@ def run_code():
         prompt = (f"Simulate {language}:\n{code[:400]}\nInput:{tc.get('input','')}\n"
                   f"Expected:{tc.get('expected','')}\n"
                   f'JSON:{{"output":"...","passed":true/false,"error":null}}')
-        r = ai_json(prompt, max_tokens=80)
+        r = ai_json(prompt, max_tokens=200)
         results.append(r if isinstance(r,dict) else {'output':'?','passed':False,'error':'Failed'})
     return jsonify({'results':results,'passed':sum(1 for r in results if r.get('passed')),'total':len(results)})
 
@@ -503,7 +577,7 @@ def review_code():
               f'JSON:{{"time_complexity":"O(?)","space_complexity":"O(?)",'
               f'"correctness_score":0-10,"code_quality_score":0-10,'
               f'"strengths":["..."],"improvements":["..."],"interview_feedback":"..."}}')
-    r = ai_json(prompt, max_tokens=200)
+    r = ai_json(prompt, max_tokens=450)
     return jsonify(r if isinstance(r,dict) else {'interview_feedback':ai_generate(prompt,100),'time_complexity':'?','space_complexity':'?'})
 
 @app.route('/api/mark_solved', methods=['POST'])
@@ -532,7 +606,7 @@ def get_ai_feedback():
               f"{s.get('interview_sessions',0)} interviews. 60-word response. JSON:\n"
               f'{{"overall_readiness":"X%","strengths":["..."],"focus_areas":["..."],'
               f'"weekly_plan":["Day 1:...","Day 2:...","Day 3:..."],"motivational_message":"..."}}')
-    r=ai_json(prompt, max_tokens=280)
+    r=ai_json(prompt, max_tokens=450)
     return jsonify(r if isinstance(r,dict) else {'overall_readiness':'50%','motivational_message':'Keep going!'})
 
 # ── Interview page ────────────────────────────────────────────────────────────
@@ -562,7 +636,7 @@ def analyze_resume():
     prompt=(f"Score resume for placement (70-word max):\n{text}\n"
             f'JSON:{{"overall_score":0-100,"ats_score":0-100,"strengths":["..."],'
             f'"improvements":["..."],"keywords_missing":["..."],"action_items":["..."]}}')
-    r=ai_json(prompt, max_tokens=300)
+    r=ai_json(prompt, max_tokens=600)
     return jsonify(r if isinstance(r,dict) else {'error':'Analysis failed'})
 
 @app.route('/companies')
@@ -579,7 +653,7 @@ def company_prep():
             f'JSON:{{"company":"{company}","role":"{role}","difficulty":"Easy/Medium/Hard",'
             f'"rounds":["..."],"focus_topics":["..."],"sample_questions":["..."],'
             f'"tips":["..."],"package_range":"X-Y LPA","prep_timeline":"X weeks"}}')
-    r=ai_json(prompt, max_tokens=350)
+    r=ai_json(prompt, max_tokens=500)
     return jsonify(r if isinstance(r,dict) else {'company':company,'tips':['Check AI connection']})
 
 # ── Utility ───────────────────────────────────────────────────────────────────

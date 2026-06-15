@@ -188,7 +188,8 @@ async function startQuiz() {
   const data = await apiFetch('/api/generate_quiz', {topic: selectedTopic, count: parseInt(count), difficulty: diff});
   
   if(data.error || !data.questions || !data.questions.length) {
-    showToast('Failed to generate quiz. Check your API key.', 'error');
+    const errorMsg = data.error || 'Failed to generate quiz.';
+    showToast(errorMsg + ' (Check API key or quota limits)', 'error', 7000);
     document.getElementById('setupScreen').classList.remove('hidden');
     document.getElementById('quizScreen').classList.add('hidden');
     btn.innerHTML = '<i class="fas fa-play"></i> Generate & Start Quiz';

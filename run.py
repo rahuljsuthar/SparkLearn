@@ -4,6 +4,13 @@ SparkLearn: Ignite Your Learning — Quick Start
 """
 import sys, os, subprocess
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 def check_python():
     if sys.version_info < (3, 8):
         print("❌ Python 3.8+ required"); sys.exit(1)
@@ -46,6 +53,8 @@ def main():
     print("     AI Placement Preparation System")
     print("═"*56)
     check_python(); check_env(); install_deps(); check_ollama()
+    from dotenv import load_dotenv
+    load_dotenv()
     port = int(os.getenv('PORT', 5000))
     print(f"\n🚀  http://localhost:{port}")
     print("    Ctrl+C to stop\n")
